@@ -1,0 +1,24 @@
+{
+  "name": "esa/helper",
+  "description": "ESA Helper library",
+  "type": "library",
+  "license": "MIT",
+  "version": "1.0.0",
+  "autoload": {
+    "psr-4": {
+      "Esa\\Helper\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Pragnesh",
+      "email": "pragnesh.chauhan@goodcareit.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^11.27",
+    "illuminate/database": "^11.27"
+  }
+}
