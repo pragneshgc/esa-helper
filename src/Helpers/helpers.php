@@ -1,6 +1,5 @@
 <?php
 
-use SimpleXMLElement;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 
