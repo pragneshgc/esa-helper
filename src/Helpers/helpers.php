@@ -194,3 +194,42 @@ if (!function_exists('storeFile')) {
         return Storage::put($filePath, $contents);
     }
 }
+
+if (!function_exists('downloadStorageFile')) {
+    /**
+     * Download storage file
+     * @param string $path
+     * @param string $fileName
+     * @return mixed
+     * @package esa\helper
+     */
+    function downloadStorageFile(string $path, string $fileName)
+    {
+        if (isAzureStorageEnabled()) {
+            return downloadRemoteFile($path, $fileName);
+        }
+        return Response::download($path, $fileName);
+    }
+}
+
+if (!function_exists('downloadRemoteFile')) {
+    /**
+     * download remote file
+     *
+     * @param string $path
+     * @param string $fileName
+     * @param string $disk
+     * @return Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @package esa\helper
+     */
+    function downloadRemoteFile(string $path, string $fileName = '', string $disk = 'azure')
+    {
+        $url = Storage::disk($disk)->url($path);
+
+        $fileName ??= basename($path);
+        $tempImage = tempnam(sys_get_temp_dir(), $fileName);
+        copy($url, $tempImage);
+
+        return Response::download($tempImage, $fileName);
+    }
+}
