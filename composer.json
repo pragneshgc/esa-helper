@@ -3,7 +3,7 @@
   "description": "ESA Helper library",
   "type": "library",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "autoload": {
     "psr-4": {
       "Esa\\Helper\\": "src/"
@@ -23,6 +23,6 @@
     "php": "^8.2",
     "illuminate/support": "*",
     "illuminate/database": "*",
-    "illuminate/http": "^11.27"
+    "illuminate/http": "*"
   }
 }

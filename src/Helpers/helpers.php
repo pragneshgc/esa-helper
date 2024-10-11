@@ -2,12 +2,15 @@
 
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('sendResponse')) {
     /**
      * Success response method.
      *
      * @return JsonResponse
+     * @package esa\helper
      */
     function sendResponse($result, $message = '', $success = true): JsonResponse
     {
@@ -26,6 +29,7 @@ if (!function_exists('sendError')) {
      * Return error response.
      *
      * @return JsonResponse
+     * @package esa\helper
      */
     function sendError($errors, $errorMessages = [], $code = 404): JsonResponse
     {
@@ -42,15 +46,16 @@ if (!function_exists('sendError')) {
     }
 }
 
-if (!function_exists('string_join')) {
+if (!function_exists('stringJoin')) {
     /**
      * remove whitespace and join array by separator
      *
      * @param array $arr
      * @param string $separator default ' '
      * @return string
+     * @package esa\helper
      */
-    function string_join(array $arr, string $separator = ' '): string
+    function stringJoin(array $arr, string $separator = ' '): string
     {
         $arr = array_filter(array_map('trim', $arr));
         return join($separator, $arr);
@@ -62,6 +67,7 @@ if (!function_exists('xmlToArray')) {
      * convert XML to Array
      * @param mixed $xml
      * @return array
+     * @package esa\helper
      */
     function xmlToArray($xml): array
     {
@@ -75,6 +81,7 @@ if (!function_exists('objectToArray')) {
      * Convert Object to Array
      * @param mixed $object
      * @return array
+     * @package esa\helper
      */
     function objectToArray($object): array
     {
@@ -86,6 +93,7 @@ if (!function_exists('getIP')) {
     /**
      * Return IP Address
      * @return mixed
+     * @package esa\helper
      */
     function getIP(): mixed
     {
@@ -114,6 +122,7 @@ if (!function_exists('arrayToXml')) {
      * @param array $arr
      * @param SimpleXMLElement $xml
      * @return bool|string
+     * @package esa\helper
      */
     function arrayToXml(array $arr, SimpleXMLElement $xml)
     {
@@ -152,5 +161,36 @@ if (!function_exists('arrayToXml')) {
         }
 
         return $xml->asXML();
+    }
+}
+
+if (!function_exists('isAzureStorageEnabled')) {
+    /**
+     * Check if azure storage enabled or not
+     *
+     * @return bool
+     * @package esa\helper
+     */
+    function isAzureStorageEnabled()
+    {
+        return Config::get('filesystems.disks.azure.key') != '' ? true : false;
+    }
+}
+
+if (!function_exists('storeFile')) {
+    /**
+     * Store file to Remote storage if configured otherwise store to local storage.
+     *
+     * @param string $filePath
+     * @param mixed $contents,
+     * @return bool
+     * @package esa\helper
+     */
+    function storeFile(string $filePath, $contents, string $disk = 'azure'): bool
+    {
+        if (isAzureStorageEnabled()) {
+            return Storage::disk($disk)->put($filePath, $contents);
+        }
+        return Storage::put($filePath, $contents);
     }
 }
