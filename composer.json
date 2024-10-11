@@ -3,11 +3,14 @@
   "description": "ESA Helper library",
   "type": "library",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "autoload": {
     "psr-4": {
       "Esa\\Helper\\": "src/"
-    }
+    },
+    "files": [
+      "src/Helpers/helpers.php"
+    ]
   },
   "authors": [
     {
@@ -19,6 +22,7 @@
   "require": {
     "php": "^8.2",
     "illuminate/support": "*",
-    "illuminate/database": "*"
+    "illuminate/database": "*",
+    "illuminate/http": "^11.27"
   }
 }
