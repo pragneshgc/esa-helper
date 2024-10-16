@@ -4,6 +4,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response as Res;
 
 if (!function_exists('sendResponse')) {
     /**
@@ -203,12 +204,12 @@ if (!function_exists('downloadStorageFile')) {
      * @return mixed
      * @package esa\helper
      */
-    function downloadStorageFile(string $path, string $fileName)
+    function downloadStorageFile(string $path, string $fileName): BinaryFileResponse
     {
         if (isAzureStorageEnabled()) {
             return downloadRemoteFile($path, $fileName);
         }
-        return Response::download($path, $fileName);
+        return Res::download($path, $fileName);
     }
 }
 
@@ -230,6 +231,6 @@ if (!function_exists('downloadRemoteFile')) {
         $tempImage = tempnam(sys_get_temp_dir(), $fileName);
         copy($url, $tempImage);
 
-        return Response::download($tempImage, $fileName);
+        return Res::download($tempImage, $fileName);
     }
 }

@@ -3,7 +3,7 @@
   "description": "ESA Helper library",
   "type": "library",
   "license": "MIT",
-  "version": "1.0.4.1",
+  "version": "1.0.5",
   "autoload": {
     "psr-4": {
       "Esa\\Helper\\": "src/"
