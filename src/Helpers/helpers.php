@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response as Res;
+use Illuminate\Support\Facades\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 if (!function_exists('sendResponse')) {
     /**
@@ -209,7 +209,7 @@ if (!function_exists('downloadStorageFile')) {
         if (isAzureStorageEnabled()) {
             return downloadRemoteFile($path, $fileName);
         }
-        return Res::download($path, $fileName);
+        return Response::download($path, $fileName);
     }
 }
 
@@ -220,7 +220,7 @@ if (!function_exists('downloadRemoteFile')) {
      * @param string $path
      * @param string $fileName
      * @param string $disk
-     * @return Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return BinaryFileResponse
      * @package esa\helper
      */
     function downloadRemoteFile(string $path, string $fileName = '', string $disk = 'azure')
@@ -231,6 +231,6 @@ if (!function_exists('downloadRemoteFile')) {
         $tempImage = tempnam(sys_get_temp_dir(), $fileName);
         copy($url, $tempImage);
 
-        return Res::download($tempImage, $fileName);
+        return Response::download($tempImage, $fileName);
     }
 }
