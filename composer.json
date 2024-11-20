@@ -24,5 +24,12 @@
     "illuminate/support": ">=11.30",
     "illuminate/database": ">=11.30",
     "illuminate/http": ">=11.30"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Esa\\Helper\\Provider\\PackageServiceProvider"
+      ]
+    }
   }
 }
