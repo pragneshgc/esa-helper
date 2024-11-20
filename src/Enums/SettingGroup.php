@@ -8,4 +8,5 @@ enum SettingGroup: string
 {
     use EnumToArray;
     case GENERAL = 'general';
+    case DoctorType = 'DoctorType';
 }

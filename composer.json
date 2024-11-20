@@ -3,7 +3,6 @@
   "description": "ESA Helper library",
   "type": "library",
   "license": "MIT",
-  "version": "1.0.6",
   "autoload": {
     "psr-4": {
       "Esa\\Helper\\": "src/"
@@ -18,11 +17,12 @@
       "email": "pragnesh.chauhan@goodcareit.com"
     }
   ],
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
+  "prefer-stable": false,
   "require": {
     "php": "^8.2",
-    "illuminate/support": "*",
-    "illuminate/database": "*",
-    "illuminate/http": "*"
+    "illuminate/support": ">=11.30",
+    "illuminate/database": ">=11.30",
+    "illuminate/http": ">=11.30"
   }
 }
