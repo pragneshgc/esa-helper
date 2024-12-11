@@ -7,8 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') ? config('app.name') : '' }}</title>
 
-    <link rel="stylesheet" href="{{ url('vendor/esa/app.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/esa/style.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('vendor/fontawesome/css/all.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('vendor/esa/style.css') }}" />
 </head>
 
 <body>

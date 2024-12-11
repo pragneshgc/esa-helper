@@ -3,6 +3,7 @@ import { createApp } from "vue";
 
 import router from './router';
 import EsaHelper from "./EsaHelper.vue";
+import 'bootstrap';
 
 let token = document.head.querySelector("meta[name='csrf-token']");
 

@@ -2,20 +2,14 @@
 
 - For common code in UK and NL ESA Applications.
 
-#### Register Provider
-
-add below line in config/app.php
-
-```
-\Esa\Helper\Provider\PackageServiceProvider::class,
-```
-
-#### Run below commands
+#### Run migration
 
 ```
 php artisan migrate
 ```
 
+#### Run Command to create module
+
 ```
-php artisan vendor:publish --tag=esa-helper
+cp -r src\stub src\modules\{MODULE_NAME}
 ```

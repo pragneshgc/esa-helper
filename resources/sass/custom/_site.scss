@@ -1,0 +1,66 @@
+.list-group-ul{
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    list-style: none;
+}
+
+.list-group-li{
+    font-weight: normal;
+    margin: 5px;
+    height: 30px;
+}
+.list-item{
+    padding: 5px;
+    background-color: #ccc;
+}
+
+.list-group{
+    display: flex;
+    margin-top: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.report-dropbox{
+    border: 1px dashed;
+    height: 40px;
+}
+.thead-dark{
+    background: #239a9d;
+    color: white;
+    text-align: left;
+}
+.card-pagination{
+    clear: both;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-dropbox{
+    border: 1px dotted;
+    width: 100%;
+    height: 54px;
+}
+.filters-row{
+    display: flex;
+    flex-basis: auto;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
+}
+.filter-inputs{
+    display: flex;
+    flex-basis: auto;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+.filter-search{
+    width: 250px;
+}
+.filter-button-group{
+    margin-left: 20px;
+    width: 150px;
+    display: flex;
+    justify-content: space-around;
+}
