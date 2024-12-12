@@ -18,6 +18,8 @@ class QueryBuilder
     private array $relationTables = [];
     private array $reportFields = [];
 
+    private array $enumFields = [];
+
     private string $primaryTable;
 
     public function __construct(protected array $registerClasses, protected Request $request)
@@ -51,9 +53,22 @@ class QueryBuilder
         $this->setQueryOrder();
         $this->includeJoins();
 
-        $this->builder->limit($this->request->limit);
-        echo $this->builder->toRawSql();
-        exit;
+        $records = $this->builder->paginate($this->request->limit);
+        if (!empty($this->enumFields)) {
+            $records->getCollection()->transform(function ($item) {
+                foreach ($item as $k => $i) {
+                    if (in_array($k, array_keys($this->enumFields))) {
+                        $reflection = new \ReflectionEnum($this->enumFields[$k]);
+                        $cases = $reflection->getCases();
+                        $item->$k = $this->getEnumNameFrom($cases, $i);
+                    }
+                }
+
+                return $item;
+            });
+        }
+
+        return $records;
     }
 
     private function getQueryBuilder()
@@ -66,6 +81,9 @@ class QueryBuilder
             $isFieldExit = collect($this->fields[$tablename])->where('key', $field['key'])->first();
             if (isset($isFieldExit['callback'])) {
                 $this->reportFields[] = $isFieldExit['callback'] . ' as `' . $field['text'] . '`';
+            } elseif (isset($isFieldExit['enum'])) {
+                $this->enumFields[$field['text']] = $field['enum'];
+                $this->reportFields[] = $isFieldExit['key'] . ' as `' . $field['text'] . '`';
             } else {
                 $this->reportFields[] = $field['key'] . ' as `' . $field['text'] . '`';
             }
@@ -105,5 +123,15 @@ class QueryBuilder
                 }
             }
         }
+    }
+
+    private function getEnumNameFrom($cases, $value)
+    {
+        foreach ($cases as $case) {
+            if ($case->getValue()->value == $value) {
+                return $case->getValue()->name;
+            }
+        }
+        return '';
     }
 }

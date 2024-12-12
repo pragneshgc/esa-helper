@@ -45,7 +45,7 @@
                 <h3>Dynamic Reports</h3>
             </div>
             <div class="card-body">
-                <PaginationComponent class="card-pagination" :data="data" :loading="loading" @click="changePage" />
+                <PaginationComponent class="card-pagination" :data="data" :loading="loading" @change="changePage" />
 
                 <div class="filters-row">
                     <div class="filter-inputs">
@@ -74,8 +74,8 @@
                 </div>
 
                 <table class="table table-hover">
-                    <thead class="thead-dark primary-color">
-                        <th v-for="(header, index) in headers" :key="index" scope="col"
+                    <thead class="thead-dark primary-color report-header">
+                        <th class="primacy-color" v-for="(header, index) in headers" :key="index" scope="col"
                             v-on:click="setOrder(header.key)">
                             {{ header.text }}
 
@@ -84,10 +84,6 @@
                                     class="fa fa-caret-down"></i>
                                 <i v-if="header.key == orderBy && orderDirection == 'ASC'" class="fa fa-caret-up"></i>
                                 <i v-if="header.key != orderBy" class="fa fa-sort"></i>
-                            </span>
-
-                            <span style="margin-left: 10px; cursor: pointer;">
-                                <i class="fa fa-filter" aria-hidden="true"></i>
                             </span>
                         </th>
                     </thead>
@@ -99,7 +95,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <PaginationComponent class="card-pagination" :data="data" :loading="loading" @click="changePage" />
+                <PaginationComponent class="card-pagination" :data="data" :loading="loading" @change="changePage" />
             </div>
 
         </section>
@@ -146,6 +142,7 @@ export default {
             });
         },
         changePage: function (page) {
+            console.log('report changepage');
             if (!this.loading) {
                 if (page === this.data.current_page) return;
                 this.data.current_page = page;

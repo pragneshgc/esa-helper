@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="paginator pagination example" v-show="data.to > 1">
+        <div class="paginator pagination" v-show="data.to > 1">
             <div class="pagination pg-blue">
                 <button class="page-item" :disabled="data.current_page == 1 || loading"
                     :class="{ 'disabled': data.current_page == 1 || loading }"
@@ -57,7 +57,8 @@ export default {
     },
     methods: {
         changePage(page) {
-            this.$emit('click', page);
+            console.log('emitting click');
+            this.$emit('change', page);
         }
     },
 }

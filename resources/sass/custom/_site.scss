@@ -3,6 +3,7 @@
     margin-bottom: 10px;
     margin-top: 10px;
     list-style: none;
+    padding: 0;
 }
 
 .list-group-li{
@@ -48,6 +49,7 @@
     flex-grow: 1;
     align-items: center;
     justify-content: space-between;
+    margin: 10px 0;
 }
 .filter-inputs{
     display: flex;
@@ -63,4 +65,23 @@
     width: 150px;
     display: flex;
     justify-content: space-around;
+}
+
+.report-header{
+    padding: 5px !important;
+    height: 36px;
+    line-height: 36px;
+}
+
+.report-header th span{
+    background-color: #239a9d;
+    padding: 0 !important;
+}
+.pagination .page-item{
+    border: 1px solid #ccc;
+    width: 60px;
+}
+.pagination .page-link{
+    background-color: rgb(240, 240, 240);
+    border: 1px solid rgb(240, 240, 240);
 }
