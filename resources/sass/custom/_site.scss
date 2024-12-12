@@ -71,6 +71,9 @@
     padding: 5px !important;
     height: 36px;
     line-height: 36px;
+    --bs-border-width: 0;
+    --bs-table-bg: #239a9d;
+    --bs-table-color: #fff;
 }
 
 .report-header th span{

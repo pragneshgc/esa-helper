@@ -51,7 +51,7 @@
                     <div class="filter-inputs">
                         <input v-model="queryString" type="text" class="form-control filter-search" id="queryString"
                             placeholder="Search...">
-                        <select v-model="limit" class="table-dropdown">
+                        <select v-model="limit" class="table-dropdown" @change="updatePageLimit()">
                             <option value="10">Show 10</option>
                             <option value="20">Show 20</option>
                             <option value="50">Show 50</option>
@@ -73,19 +73,28 @@
                     </div>
                 </div>
 
-                <table class="table table-hover">
-                    <thead class="thead-dark primary-color report-header">
-                        <th class="primacy-color" v-for="(header, index) in headers" :key="index" scope="col"
-                            v-on:click="setOrder(header.key)">
-                            {{ header.text }}
+                <div class="table-responsive small"></div>
+                <table class="table table-striped table-sm">
+                    <thead class="thead-dark">
+                        <tr class="report-header">
+                            <th v-for="(header, index) in headers" :key="index" scope="col"
+                                @click="setOrder(header.key)">
+                                {{ header.text }}
 
-                            <span>
-                                <i v-if="header.key == orderBy && orderDirection == 'DESC'"
-                                    class="fa fa-caret-down"></i>
-                                <i v-if="header.key == orderBy && orderDirection == 'ASC'" class="fa fa-caret-up"></i>
-                                <i v-if="header.key != orderBy" class="fa fa-sort"></i>
-                            </span>
-                        </th>
+                                <span>
+                                    <i v-if="header.key == orderBy && orderDirection == 'DESC'"
+                                        class="fa fa-caret-down"></i>
+                                    <i v-if="header.key == orderBy && orderDirection == 'ASC'"
+                                        class="fa fa-caret-up"></i>
+                                    <i v-if="header.key != orderBy" class="fa fa-sort"></i>
+                                </span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th v-for="(header, index) in headers" :key="index" scope="col">
+                                <i class="fa-solid fa-filter"></i>
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(items, index) in data.data" :key="index">
@@ -103,6 +112,7 @@
 </template>
 <script>
 import axios from 'axios';
+import { update } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next'
 
@@ -201,6 +211,9 @@ export default {
         currentFilterParam: function () {
             return this.filters != '' ? this.filters : '';
         },
+    },
+    watch: {
+        limit: 'getData'
     }
 }
 </script>
