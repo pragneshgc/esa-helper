@@ -1,8 +1,8 @@
 <?php
 
-namespace Esa\Helper\Provider;
+namespace Esa\Helper\Providers;
 
-use Esa\Helper\Modules\Reports\Providers\ReportServiceProvider;
+use Modules\Reports\Providers\ReportServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
 class PackageServiceProvider extends ServiceProvider

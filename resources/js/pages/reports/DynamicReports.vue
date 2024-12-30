@@ -77,22 +77,38 @@
                 <table class="table table-striped table-sm">
                     <thead class="thead-dark">
                         <tr class="report-header">
-                            <th v-for="(header, index) in headers" :key="index" scope="col"
-                                @click="setOrder(header.key)">
-                                {{ header.text }}
+                            <th v-for="(header, index) in headers" :key="index" scope="col">
+                                <div class="input-group">
+                                    <span class="me-3">{{ header.text }}</span>
 
-                                <span>
-                                    <i v-if="header.key == orderBy && orderDirection == 'DESC'"
-                                        class="fa fa-caret-down"></i>
-                                    <i v-if="header.key == orderBy && orderDirection == 'ASC'"
-                                        class="fa fa-caret-up"></i>
-                                    <i v-if="header.key != orderBy" class="fa fa-sort"></i>
-                                </span>
+                                    <span class="input-group-text me-2" id="basic-addon01"
+                                        @click="setOrder(header.key)">
+                                        <i v-if="header.key == orderBy && orderDirection == 'DESC'"
+                                            class="fa fa-caret-down"></i>
+                                        <i v-if="header.key == orderBy && orderDirection == 'ASC'"
+                                            class="fa fa-caret-up"></i>
+                                        <i v-if="header.key != orderBy" class="fa fa-sort"></i>
+                                    </span>
+                                    <span class="input-group-text" id="basic-addon02" @click="showFilter(header.key)">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </span>
+                                </div>
+
                             </th>
                         </tr>
                         <tr>
                             <th v-for="(header, index) in headers" :key="index" scope="col">
-                                <i class="fa-solid fa-filter"></i>
+                                <div class="input-group" v-if="showFilters.includes(header.key)">
+                                    <input type="text" class="form-control" v-model="filters[header.key]"
+                                        :placeholder="header.text" />
+                                    <span class="input-group-text" id="basic-addon1" @click="search()">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </span>
+                                    <span class="input-group-text bg-danger" id="basic-addon2"
+                                        @click="hideFilter(header.key)">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </div>
                             </th>
                         </tr>
                     </thead>
@@ -112,7 +128,6 @@
 </template>
 <script>
 import axios from 'axios';
-import { update } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next'
 
@@ -133,9 +148,10 @@ export default {
             queryString: this.$route.query.q || '',
             orderBy: '',
             orderDirection: '',
-            filters: {},
+            filters: [],
             limit: '200',
             loading: false,
+            showFilters: [],
         }
     },
     components: {
@@ -146,6 +162,19 @@ export default {
         this.getReportColumns();
     },
     methods: {
+        showFilter(column) {
+            this.showFilters.push(column);
+        },
+        hideFilter(column) {
+            var index = this.showFilters.indexOf(column);
+            if (index !== -1) {
+                this.showFilters.splice(index, 1);
+            }
+        },
+        search() {
+            console.log(this.filters);
+            this.getData();
+        },
         getReportColumns() {
             axios.get('/get-dynamic-reports').then((response) => {
                 this.fields = response.data.data;
@@ -181,6 +210,10 @@ export default {
                 .then((response) => {
                     this.data = response.data.data;
                     this.headers = this.reportFields;
+                    Object.values(this.headers).forEach((item) => {
+                        console.log(item, item.key);
+                        this.filters[item.key] = '';
+                    })
                     this.loading = false;
                 })
                 .catch((error) => {
@@ -209,7 +242,9 @@ export default {
             return this.limit != '' ? this.limit : '';
         },
         currentFilterParam: function () {
-            return this.filters != '' ? this.filters : '';
+            console.log('filter param', this.filters);
+            //return this.filters != '' ? JSON.stringify(this.filters) : '';
+            return JSON.stringify(this.filters);
         },
     },
     watch: {
