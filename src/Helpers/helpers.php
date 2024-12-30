@@ -72,7 +72,8 @@ if (!function_exists('xmlToArray')) {
      */
     function xmlToArray($xml): array
     {
-        $json = json_encode(simplexml_load_string($xml));
+        $encodedXml = mb_convert_encoding($xml, 'UTF-8', 'ISO-8859-1');
+        $json = json_encode(simplexml_load_string($encodedXml));
         return json_decode($json, true);
     }
 }
