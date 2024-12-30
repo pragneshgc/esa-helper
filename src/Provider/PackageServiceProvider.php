@@ -21,6 +21,6 @@ class PackageServiceProvider extends ServiceProvider
 
     private function registerProviders()
     {
-        $this->app->register(ReportServiceProvider::class);
+        //$this->app->register(ReportServiceProvider::class);
     }
 }
