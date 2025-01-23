@@ -14,7 +14,7 @@
                 <div class="list-group-item" v-for="(element, field) in fields" :key="element.name">
                     <ul class="list-group-ul">
                         <span>{{ field }}</span>
-                        <draggable class="list-group" :list="element.fields" group="people">
+                        <draggable class="list-group" :list="element.fields" group="fields">
                             <li class="list-group-li text-center" v-for="(index, field) in element.fields">
                                 <span class="list-item">{{ index.text }}</span>
                             </li>
@@ -27,7 +27,7 @@
             <div class="col">
                 <h3>Reports Fields</h3>
                 <ul class="list-group-ul report-dropbox">
-                    <draggable class="list-group" v-model="reportFields" :list="reportFields" group="people">
+                    <draggable class="list-group" v-model="reportFields" :list="reportFields" group="fields">
                         <li class="list-group-li" v-for="(index, field) in reportFields">
                             <span class="list-item">{{ index.text }}</span>
                         </li>
@@ -130,6 +130,7 @@
 import axios from 'axios';
 import { defineAsyncComponent } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next'
+import _ from 'lodash';
 
 export default {
     mixins: [Error],
@@ -148,7 +149,7 @@ export default {
             queryString: this.$route.query.q || '',
             orderBy: '',
             orderDirection: '',
-            filters: [],
+            filters: {},
             limit: '200',
             loading: false,
             showFilters: [],
@@ -170,9 +171,11 @@ export default {
             if (index !== -1) {
                 this.showFilters.splice(index, 1);
             }
+            console.log('hide filter', this.filters[column]);
+            this.filters[column] = '';
+            this.getData();
         },
         search() {
-            console.log(this.filters);
             this.getData();
         },
         getReportColumns() {
@@ -181,7 +184,6 @@ export default {
             });
         },
         changePage: function (page) {
-            console.log('report changepage');
             if (!this.loading) {
                 if (page === this.data.current_page) return;
                 this.data.current_page = page;
@@ -195,13 +197,13 @@ export default {
         },
         getData() {
             this.loading = true;
-
             axios.get(this.dataUrl, {
                 params: {
                     fields: this.reportFields,
                     page: this.currentPageParam,
                     q: this.currentQueryString,
                     limit: this.currentLimitParam,
+                    //f: JSON.stringify(this.filters),
                     f: this.currentFilterParam,
                     orderBy: this.currentOrderByParam,
                     orderDirection: this.currentOrderDirectionParam,
@@ -211,8 +213,9 @@ export default {
                     this.data = response.data.data;
                     this.headers = this.reportFields;
                     Object.values(this.headers).forEach((item) => {
-                        console.log(item, item.key);
-                        this.filters[item.key] = '';
+                        if (_.isUndefined(this.filters[item.key])) {
+                            this.filters[item.key] = '';
+                        }
                     })
                     this.loading = false;
                 })
@@ -242,13 +245,12 @@ export default {
             return this.limit != '' ? this.limit : '';
         },
         currentFilterParam: function () {
-            console.log('filter param', this.filters);
             //return this.filters != '' ? JSON.stringify(this.filters) : '';
             return JSON.stringify(this.filters);
         },
     },
     watch: {
-        limit: 'getData'
+        limit: 'getData',
     }
 }
 </script>

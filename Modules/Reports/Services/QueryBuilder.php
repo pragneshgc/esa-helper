@@ -21,6 +21,7 @@ class QueryBuilder
     private array $enumFields = [];
 
     private string $primaryTable;
+    private array $fieldsRefs = [];
 
     public function __construct(protected array $registerClasses, protected Request $request)
     {
@@ -52,6 +53,7 @@ class QueryBuilder
         $this->includeFields();
         $this->setQueryOrder();
         $this->includeJoins();
+        $this->filterRecords();
 
         $records = $this->builder->paginate($this->request->limit);
         if (!empty($this->enumFields)) {
@@ -80,16 +82,20 @@ class QueryBuilder
         if (isset($this->fields[$tablename])) {
             $isFieldExit = collect($this->fields[$tablename])->where('key', $field['key'])->first();
             if (isset($isFieldExit['callback'])) {
+                $this->fieldsRefs[$field['key']] = $field['callback'];
                 $this->reportFields[] = $isFieldExit['callback'] . ' as `' . $field['text'] . '`';
             } elseif (isset($isFieldExit['enum'])) {
                 $this->enumFields[$field['text']] = $field['enum'];
+                $this->fieldsRefs[$field['key']] = $field['key'];
                 $this->reportFields[] = $isFieldExit['key'] . ' as `' . $field['text'] . '`';
             } else {
+                $this->fieldsRefs[$field['key']] = $field['key'];
                 $this->reportFields[] = $field['key'] . ' as `' . $field['text'] . '`';
             }
         } else {
             [$tablename, $column] = explode('.', $field['key']);
             if ($this->joins[$this->primaryTable][$tablename]) {
+                $this->fieldsRefs[$field['key']] = $field['key'];
                 $this->reportFields[] = $field['key'] . ' as `' . $field['text'] . '`';
             }
         }
@@ -133,5 +139,17 @@ class QueryBuilder
             }
         }
         return '';
+    }
+
+    private function filterRecords()
+    {
+        $filters = json_decode($this->request->f);
+        if (!empty($filters)) {
+            foreach ($filters as $filter => $value) {
+                if (!empty($value)) {
+                    $this->builder->where($this->fieldsRefs[$filter], $value);
+                }
+            }
+        }
     }
 }

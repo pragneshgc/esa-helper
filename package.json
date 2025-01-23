@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build-dev": "SET NODE_ENV=development && vite build --mode development",
     "build": "vite build",
     "watch": "vite build --watch"
   },
@@ -12,6 +13,7 @@
     "@vitejs/plugin-vue": "^5.1.5",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "cross-env": "^7.0.3",
     "lodash": "^4.17.21",
     "popper.js": "^1.16.1",
     "sass": "^1.81.0",

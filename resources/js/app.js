@@ -14,7 +14,6 @@ if (token) {
 }
 
 const app = createApp(EsaHelper);
-
 //plugins
 app.use(router);
 
