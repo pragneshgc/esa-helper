@@ -2,8 +2,10 @@
 
 namespace Modules\Reports\Services;
 
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Reports\Enums\FilterType;
 use Illuminate\Database\Query\Builder;
 
 
@@ -23,6 +25,8 @@ class QueryBuilder
     private string $primaryTable;
     private array $fieldsRefs = [];
 
+    private array $filters = [];
+    private array $reportFilters = [];
     public function __construct(protected array $registerClasses, protected Request $request)
     {
         foreach ($this->registerClasses as $key => $reportClass) {
@@ -30,12 +34,15 @@ class QueryBuilder
             $this->tableClasses[$class->table] = $reportClass;
             $this->fields[$class->table] = $class->fields();
             $this->joins[$class->table] = $class->includedJoins();
+            $this->filters[$class->table] = $class->filters();
         }
     }
 
     public function get()
     {
         $fields = $this->request->fields;
+        $this->reportFilters = $this->recordFilter($fields);
+
         foreach ($fields as $key => $field) {
             [$tablename, $column] = explode('.', $field['key']);
             if ($key == 0) {
@@ -55,6 +62,8 @@ class QueryBuilder
         $this->includeJoins();
         $this->filterRecords();
 
+        $this->setDropdownRecords();
+
         $records = $this->builder->paginate($this->request->limit);
         if (!empty($this->enumFields)) {
             $records->getCollection()->transform(function ($item) {
@@ -70,7 +79,10 @@ class QueryBuilder
             });
         }
 
-        return $records;
+        return [
+            'records' => $records,
+            'filters' => $this->reportFilters
+        ];
     }
 
     private function getQueryBuilder()
@@ -146,8 +158,45 @@ class QueryBuilder
         $filters = json_decode($this->request->f);
         if (!empty($filters)) {
             foreach ($filters as $filter => $value) {
+                $recordFilter = $this->reportFilters[$filter];
                 if (!empty($value)) {
-                    $this->builder->where($this->fieldsRefs[$filter], $value);
+                    if ($recordFilter['operator'] == 'LIKE') {
+                        $value = '%' . $value . '%';
+                    }
+                    $this->builder->where($recordFilter['key'], $recordFilter['operator'], $value);
+                    $this->reportFilters[$filter]['value'] = $value;
+                }
+            }
+        }
+    }
+
+    private function recordFilter($fields)
+    {
+        $filters = [];
+        if (!empty($fields)) {
+            foreach ($fields as $field) {
+                $key = $field['key'];
+                [$tablename, $column] = explode('.', $key);
+                if (isset($this->filters[$tablename][$key])) {
+                    $filters[$key] = [...$this->filters[$tablename][$key], 'column' => $column, 'key' => $key, 'value' => ''];
+                }
+            }
+        }
+        return $filters;
+    }
+
+    private function setDropdownRecords()
+    {
+        if (!empty($this->reportFilters)) {
+            foreach ($this->reportFilters as $key => $filter) {
+                if ($filter['type'] == FilterType::DROPDOWN->value) {
+                    $sql = $this->builder->clone();
+                    $sql->wheres = [];
+                    $sql->bindings['where'] = [];
+
+                    $sql->select($filter['key']);
+                    $sql->groupBy(groups: $filter['key']);
+                    $this->reportFilters[$key]['values'] = $sql->get();
                 }
             }
         }

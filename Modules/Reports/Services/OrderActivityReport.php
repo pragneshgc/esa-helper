@@ -4,12 +4,13 @@ namespace Modules\Reports\Services;
 
 use Modules\Reports\Enums\SortDirection;
 use Modules\Reports\Contracts\ReportContract;
+use Modules\Reports\Enums\FilterOperator;
+use Modules\Reports\Enums\FilterType;
 
-
-class UserActivityReport implements ReportContract
+class OrderActivityReport implements ReportContract
 {
     public string $table = 'Activity';
-    public string $reportName = 'UserActivity';
+    public string $reportName = 'OrderActivity';
     public string $orderBy = 'Activity.ActivityID';
     public string $orderDirection = SortDirection::DESCENDING;
 
@@ -26,11 +27,11 @@ class UserActivityReport implements ReportContract
             ],
             [
                 'key' => 'Activity.Action',
-                'text' => 'User.Activity'
+                'text' => 'Action'
             ],
             [
                 'key' => 'Activity.Date',
-                'text' => 'Activity.Date'
+                'text' => 'Activity.DateTime'
             ],
         ];
     }
@@ -54,6 +55,28 @@ class UserActivityReport implements ReportContract
                 '=',
                 'Activity.OrderID'
             ]
+        ];
+    }
+
+    public function filters(): array
+    {
+        return [
+            'Activity.Name' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DROPDOWN->value
+            ],
+            'Activity.OrderID' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Activity.Action' => [
+                'operator' => FilterOperator::LIKE->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Activity.Date' => [
+                'operator' => FilterOperator::DYNAMIC->value,
+                'type' => FilterType::DATE->value
+            ],
         ];
     }
 }

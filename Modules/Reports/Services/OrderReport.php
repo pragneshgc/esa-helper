@@ -5,8 +5,9 @@ namespace Modules\Reports\Services;
 use Esa\Helper\Enums\Courier;
 use Esa\Helper\Enums\OrderStatus;
 use Modules\Reports\Enums\SortDirection;
+use Modules\Reports\Enums\FilterOperator;
 use Modules\Reports\Contracts\ReportContract;
-
+use Modules\Reports\Enums\FilterType;
 
 class OrderReport implements ReportContract
 {
@@ -106,5 +107,63 @@ class OrderReport implements ReportContract
     private function patientName(): string
     {
         return "CONCAT(Prescription.Name, ' ',  Prescription.Surname)";
+    }
+
+    public function filters(): array
+    {
+        return [
+            'Prescription.PrescriptionID' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Prescription.DoctorName' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DROPDOWN->value
+            ],
+            'Prescription.Email' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Prescription.ReferenceNumber' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Prescription.Sex' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DROPDOWN->value
+            ],
+            'Prescription.Name' => [
+                'operator' => FilterOperator::LIKE->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Prescription.DOB' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DATE->value
+            ],
+            'Prescription.Status' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DROPDOWN->value
+            ],
+            'Product.Description' => [
+                'operator' => FilterOperator::LIKE->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Client.CompanyName' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DROPDOWN->value
+            ],
+            'Prescription.DeliveryID' => [
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DROPDOWN->value
+            ],
+            'Prescription.home-address' => [
+                'operator' => FilterOperator::LIKE->value,
+                'type' => FilterType::TEXT->value
+            ],
+            'Prescription.delivery-address' => [
+                'operator' => FilterOperator::LIKE->value,
+                'type' => FilterType::TEXT->value
+            ],
+        ];
     }
 }

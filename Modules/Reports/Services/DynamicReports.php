@@ -9,7 +9,7 @@ class DynamicReports
 {
     private array $tableClass = [];
     private array $registerReports = [
-        UserActivityReport::class,
+        OrderActivityReport::class,
         OrderReport::class,
         ProductReport::class
     ];

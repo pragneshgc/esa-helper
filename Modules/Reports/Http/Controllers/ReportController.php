@@ -21,11 +21,7 @@ class ReportController
 
     public function generate(Request $request)
     {
-        /* $records = Activity::query()->with(['order'])->limit(10)->get();
-        $orders = Prescription::query()->with(['activity'])->first();
-        dd($records, $orders); */
-
         $response = $this->reports->newReport($request);
-        return sendResponse($response);
+        return sendResponse($response, 'Success');
     }
 }

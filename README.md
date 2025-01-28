@@ -11,5 +11,5 @@ php artisan migrate
 #### Run Command to create module
 
 ```
-cp -r src\stub src\Modules\{MODULE_NAME}
+cp -r src\stub Modules\{MODULE_NAME}
 ```

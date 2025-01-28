@@ -90,22 +90,38 @@
                                         <i v-if="header.key != orderBy" class="fa fa-sort"></i>
                                     </span>
                                     <span class="input-group-text" id="basic-addon02" @click="showFilter(header.key)">
-                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <i class="fa-solid fa-filter"></i>
                                     </span>
                                 </div>
 
                             </th>
                         </tr>
                         <tr>
-                            <th v-for="(header, index) in headers" :key="index" scope="col">
-                                <div class="input-group" v-if="showFilters.includes(header.key)">
-                                    <input type="text" class="form-control" v-model="filters[header.key]"
-                                        :placeholder="header.text" />
+                            <th v-for="(filter, index) in filters" :key="index" scope="col">
+                                <div class="input-group" v-if="showFilters.includes(filter.key)">
+                                    <template v-if="filter.type == 'dropdown'">
+                                        <select class="form-select" v-model="filter.value">
+                                            <option value="">Select {{ filter.text }}</option>
+                                            <option v-for="(option, i) in filter.values" :key="i"
+                                                :value="option[filter.column]">
+                                                {{ option[filter.column] }}
+                                            </option>
+                                        </select>
+                                    </template>
+                                    <template v-else-if="filter.type == 'date'">
+                                        <input type="date" class="form-control" :placeholder="filter.column"
+                                            v-model="filter.value" />
+                                    </template>
+                                    <template v-else>
+                                        <input type="text" class="form-control" :placeholder="filter.column"
+                                            v-model="filter.value" />
+                                    </template>
+
                                     <span class="input-group-text" id="basic-addon1" @click="search()">
                                         <i class="fa-solid fa-magnifying-glass"></i>
                                     </span>
                                     <span class="input-group-text bg-danger" id="basic-addon2"
-                                        @click="hideFilter(header.key)">
+                                        @click="hideFilter(filter.key)">
                                         <i class="fa-solid fa-xmark"></i>
                                     </span>
                                 </div>
@@ -171,8 +187,7 @@ export default {
             if (index !== -1) {
                 this.showFilters.splice(index, 1);
             }
-            console.log('hide filter', this.filters[column]);
-            this.filters[column] = '';
+            this.filters[column].value = '';
             this.getData();
         },
         search() {
@@ -203,20 +218,16 @@ export default {
                     page: this.currentPageParam,
                     q: this.currentQueryString,
                     limit: this.currentLimitParam,
-                    //f: JSON.stringify(this.filters),
                     f: this.currentFilterParam,
                     orderBy: this.currentOrderByParam,
                     orderDirection: this.currentOrderDirectionParam,
                 }
             })
                 .then((response) => {
-                    this.data = response.data.data;
+                    this.data = response.data.data.records;
+                    this.filters = response.data.data.filters;
                     this.headers = this.reportFields;
-                    Object.values(this.headers).forEach((item) => {
-                        if (_.isUndefined(this.filters[item.key])) {
-                            this.filters[item.key] = '';
-                        }
-                    })
+
                     this.loading = false;
                 })
                 .catch((error) => {
@@ -245,8 +256,14 @@ export default {
             return this.limit != '' ? this.limit : '';
         },
         currentFilterParam: function () {
-            //return this.filters != '' ? JSON.stringify(this.filters) : '';
-            return JSON.stringify(this.filters);
+            let searchFilter = {};
+            Object.values(this.filters).forEach((filter) => {
+                if (filter.value != '') {
+                    searchFilter[filter.key] = filter.value;
+                }
+            });
+            console.log('filter', _.isEmpty(searchFilter), JSON.stringify(searchFilter));
+            return _.isEmpty(searchFilter) ? {} : JSON.stringify(searchFilter);
         },
     },
     watch: {
