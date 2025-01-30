@@ -20,6 +20,12 @@ const routes = [
         component: () =>
             import(/* webpackChunkName: "DynamicReports" */ "@/pages/reports/DynamicReports.vue"),
     },
+    {
+        path: "/reports",
+        name: "esa.reports",
+        component: () =>
+            import(/* webpackChunkName: "Reports" */ "@/pages/reports/Reports.vue"),
+    },
 ];
 
 export default routes;

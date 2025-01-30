@@ -2,6 +2,7 @@
 
 namespace Modules\Reports\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,8 +62,10 @@ class QueryBuilder
         $this->setQueryOrder();
         $this->includeJoins();
         $this->filterRecords();
+        $this->addGroupBy();
 
-        $this->setDropdownRecords();
+        //$this->applyDateOptions();
+        //$this->setDropdownRecords();
 
         $records = $this->builder->paginate($this->request->limit);
         if (!empty($this->enumFields)) {
@@ -81,7 +84,7 @@ class QueryBuilder
 
         return [
             'records' => $records,
-            'filters' => $this->reportFilters
+            //'filters' => $this->reportFilters
         ];
     }
 
@@ -199,6 +202,25 @@ class QueryBuilder
                     $this->reportFilters[$key]['values'] = $sql->get();
                 }
             }
+        }
+    }
+
+    private function addGroupBy()
+    {
+        if (!empty($this->request->groupBy)) {
+            $this->builder->groupBy($this->request->groupBy);
+        }
+    }
+
+    private function applyDateOptions()
+    {
+        if (!empty($this->request->dateOptions)) {
+            $options = $this->request->dateOptions;
+            $startDate = Carbon::parse($options['dateRange'][0]);
+            $endDate = Carbon::parse($options['dateRange'][1]);
+
+            dd($startDate->format('Y-m-d'), $startDate->timestamp, $endDate);
+            //$this->builder->whereBetween($options['dateFilter'], $dateRange);
         }
     }
 }

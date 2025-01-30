@@ -74,8 +74,9 @@ class OrderActivityReport implements ReportContract
                 'type' => FilterType::TEXT->value
             ],
             'Activity.Date' => [
-                'operator' => FilterOperator::DYNAMIC->value,
-                'type' => FilterType::DATE->value
+                'operator' => FilterOperator::EQUAL->value,
+                'type' => FilterType::DATE->value,
+                'format' => 'd/m/Y H:i'
             ],
         ];
     }

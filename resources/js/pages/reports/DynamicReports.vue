@@ -6,10 +6,9 @@
         </transition>
 
         <h2>Report Dashboard</h2>
-
+        <hr>
         <div class="row">
             <div class="col">
-                <h3>Table Fields</h3>
 
                 <div class="list-group-item" v-for="(element, field) in fields" :key="element.name">
                     <ul class="list-group-ul">
@@ -24,6 +23,7 @@
 
             </div>
             <hr>
+
             <div class="col">
                 <h3>Reports Fields</h3>
                 <ul class="list-group-ul report-dropbox">
@@ -33,11 +33,79 @@
                         </li>
                     </draggable>
                 </ul>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-3">
+
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">GroupBy</span>
+
+                            <select v-model="groupBy" class="form-control" placeholder="Select Option"
+                                aria-describedby="basic-addon1">
+                                <template v-for="(option, i) in reportFields">
+                                    <option :value="option.key">
+                                        {{ option.text }}
+                                    </option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-3">
+
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">FilterBy</span>
+
+                            <select v-model="dateFilter" class="form-control" placeholder="Select Option"
+                                aria-describedby="basic-addon1">
+                                <template v-for="(option, i) in reportFields">
+                                    <option :value="option.key">
+                                        {{ option.text }}
+                                    </option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-9">
+                        <VueDatePicker v-model="date" range :enable-time-picker="false" format="dd/MM/yyyy">
+                        </VueDatePicker>
+                    </div>
+                </div>
+
+                <div v-if="dateFilter != ''">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" v-model="dateGroupBy" value="" name="groupBy"
+                            id="group-none" checked>
+                        <label class="form-check-label" for="group-none">
+                            None
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" v-model="dateGroupBy" value="hours" name="groupBy"
+                            id="group-hours">
+                        <label class="form-check-label" for="group-hours">
+                            Group By Hours
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" v-model="dateGroupBy" value="days" name="groupBy"
+                            id="group-days">
+                        <label class="form-check-label" for="group-days">
+                            Group By Days
+                        </label>
+                    </div>
+                </div>
+
+
+                <hr style="margin: 20px 0px">
+
                 <button type="button" class="btn btn-primary" @click="getData()"
-                    :disabled="reportFields.length < 3">Generate Report</button>
+                    :disabled="reportFields.length == 0">Generate
+                    Report</button>
             </div>
         </div>
-
         <hr style="margin: 20px 0px">
 
         <section class="card">
@@ -147,6 +215,8 @@ import axios from 'axios';
 import { defineAsyncComponent } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next'
 import _ from 'lodash';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import { groupBy } from 'lodash';
 
 export default {
     mixins: [Error],
@@ -169,11 +239,16 @@ export default {
             limit: '200',
             loading: false,
             showFilters: [],
+            date: null,
+            dateFilter: '',
+            dateGroupBy: '',
+            groupBy: '',
         }
     },
     components: {
         draggable: VueDraggableNext,
-        'PaginationComponent': defineAsyncComponent(() => import('../../components/PaginationComponent.vue'))
+        'PaginationComponent': defineAsyncComponent(() => import('../../components/PaginationComponent.vue')),
+        VueDatePicker
     },
     mounted() {
         this.getReportColumns();
@@ -221,6 +296,8 @@ export default {
                     f: this.currentFilterParam,
                     orderBy: this.currentOrderByParam,
                     orderDirection: this.currentOrderDirectionParam,
+                    groupBy: this.groupBy,
+                    dateOptions: this.dateOptions,
                 }
             })
                 .then((response) => {
@@ -233,7 +310,7 @@ export default {
                 .catch((error) => {
                     console.log(error);
                 })
-        },
+        }
     },
     computed: {
         currentPageParam: function () {
@@ -265,6 +342,13 @@ export default {
             console.log('filter', _.isEmpty(searchFilter), JSON.stringify(searchFilter));
             return _.isEmpty(searchFilter) ? {} : JSON.stringify(searchFilter);
         },
+        dateOptions() {
+            return {
+                dateRange: this.date,
+                dateFitler: this.dateFilter,
+                dateGroupBy: this.dateGroupBy,
+            }
+        }
     },
     watch: {
         limit: 'getData',

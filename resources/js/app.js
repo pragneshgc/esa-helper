@@ -4,6 +4,7 @@ import { createApp } from "vue";
 import router from './router';
 import EsaHelper from "./EsaHelper.vue";
 import 'bootstrap';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 let token = document.head.querySelector("meta[name='csrf-token']");
 

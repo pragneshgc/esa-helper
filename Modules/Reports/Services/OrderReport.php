@@ -138,7 +138,8 @@ class OrderReport implements ReportContract
             ],
             'Prescription.DOB' => [
                 'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::DATE->value
+                'type' => FilterType::DATE->value,
+                'format' => 'd/m/Y'
             ],
             'Prescription.Status' => [
                 'operator' => FilterOperator::EQUAL->value,

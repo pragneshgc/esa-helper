@@ -8,4 +8,5 @@ enum FilterType: string
     case DROPDOWN = 'dropdown';
     case TEXT = 'text';
     case TEXTAREA = 'textarea';
+    case TIMESTAMP = 'timestamp';
 }
