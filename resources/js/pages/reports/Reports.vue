@@ -64,7 +64,11 @@
                 </div>
                 <RuleGroup :fields="reportFields" />
                 <template v-for="(group, index) in ruleGroups" :key="index">
-                    <component :is="group" v-bind="groupProps"></component>
+                    <select class="form-select form-select-sm" style="width:75px; background-color: #b2cce5;">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                    </select>
+                    <RuleGroup :fields="reportFields" />
                 </template>
             </section>
 
@@ -229,16 +233,10 @@ const order = computed(() => {
         orderDirection: orderDirection.value
     });
 });
-const groupProps = computed(() => {
-    return {
-        fields: reportFields.value
-    };
-});
 
 const addGroup = () => {
     ruleGroups.value.push(RuleGroup);
 }
-
 
 watch(limit, (value) => {
     genrateReport();

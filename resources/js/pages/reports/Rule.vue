@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex justify-content-between align-items-center border p-2">
         <div class="d-flex align-items-center">
-            <select class="form-select">
+            <select class="form-select" style="width:100px; background-color: #ddd;">
                 <option value="AND">AND</option>
                 <option value="OR">OR</option>
             </select>
@@ -27,12 +27,16 @@
             </select>
             <input class="form-control" type="text" />
         </div>
-        <button class="btn btn-danger">
+        <button class="btn btn-danger" @click="remove">
             <i class="fa-solid fa-trash"></i>
             Remove
         </button>
     </div>
 </template>
 <script setup>
-const props = defineProps(['fields']);
+const props = defineProps(['fields', 'index']);
+const emit = defineEmits(['removeRule']);
+const remove = () => {
+    emit('removeRule', props.index);
+}
 </script>
