@@ -22,7 +22,7 @@
                 </div>
                 <div class="list-group-item" v-for="(element, field) in fields" :key="element.name">
                     <p class="text-capitalize fw-bold mb-0">{{ field }}</p>
-                    <template v-for="(index, field) in element.fields">
+                    <template v-for="(index, field) in element.fields" :key="field">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="checkbox" v-model="reportFields" :value="index"
                                 :id="index.key">
@@ -43,7 +43,7 @@
                     <div class="col-auto">
                         <select v-model="groupBy" class="form-select" placeholder="Select Option">
                             <option disabled selected>Select Field</option>
-                            <template v-for="(option, i) in reportFields">
+                            <template v-for="(option, i) in reportFields" :key="i">
                                 <option :value="option.key">
                                     {{ option.text }}
                                 </option>
@@ -64,11 +64,12 @@
                 </div>
                 <RuleGroup :fields="reportFields" />
                 <template v-for="(group, index) in ruleGroups" :key="index">
-                    <select class="form-select form-select-sm" style="width:75px; background-color: #b2cce5;">
+                    <select class="form-select form-select-sm" style="width:75px; background-color: #b2cce5;"
+                        v-model="groupOperator[index]">
                         <option value="AND">AND</option>
                         <option value="OR">OR</option>
                     </select>
-                    <RuleGroup :fields="reportFields" />
+                    <RuleGroup :fields="reportFields" :index="group.id" @removeGroup="onRemoveGroup" />
                 </template>
             </section>
 
@@ -162,8 +163,14 @@ import axios from 'axios';
 import { useRoute } from 'vue-router';
 import PaginationComponent from '../../components/PaginationComponent.vue';
 import RuleGroup from './RuleGroup.vue';
+import { useQueryGroup } from '../../composables/useQueryGroup';
+
 
 const route = useRoute();
+
+const {
+    rule
+} = useQueryGroup();
 
 const loading = ref(false);
 const fields = ref([]);
@@ -182,6 +189,7 @@ const data = ref({
 const filters = ref([]);
 const headers = ref([]);
 const ruleGroups = ref([]);
+const groupOperator = ref([]);
 
 onMounted(() => {
     getReportColumns();
@@ -194,7 +202,16 @@ const getReportColumns = () => {
 }
 
 const genrateReport = () => {
-    loading.value = true;
+    console.log({
+        fields: reportFields.value,
+        groupBy: groupBy.value,
+        limit: limit.value,
+        order: order.value,
+        ruleGroups: groupOperator.value,
+        rules: rule
+    });
+
+    /* loading.value = true;
     axios.get(reportUrl.value, {
         params: {
             fields: reportFields.value,
@@ -210,7 +227,7 @@ const genrateReport = () => {
         loading.value = false;
     }).finally(() => {
         loading.value = false;
-    });
+    }); */
 }
 
 const setOrder = (key) => {
@@ -235,7 +252,15 @@ const order = computed(() => {
 });
 
 const addGroup = () => {
-    ruleGroups.value.push(RuleGroup);
+    ruleGroups.value.push({
+        'id': `group-${Math.random()}`
+    });
+}
+
+const onRemoveGroup = (index) => {
+    ruleGroups.value = ruleGroups.value.filter((group) => {
+        return group.id !== index
+    });
 }
 
 watch(limit, (value) => {
