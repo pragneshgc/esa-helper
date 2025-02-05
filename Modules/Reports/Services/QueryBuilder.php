@@ -3,11 +3,11 @@
 namespace Modules\Reports\Services;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Reports\Enums\FilterType;
 use Illuminate\Database\Query\Builder;
+use Modules\Reports\Enums\FilterOperator;
 
 
 class QueryBuilder
@@ -158,18 +158,37 @@ class QueryBuilder
 
     private function filterRecords()
     {
-        $filters = json_decode($this->request->f);
+        $filters = json_decode($this->request->filter);
+
         if (!empty($filters)) {
-            foreach ($filters as $filter => $value) {
-                $recordFilter = $this->reportFilters[$filter];
-                if (!empty($value)) {
-                    if ($recordFilter['operator'] == 'LIKE') {
-                        $value = '%' . $value . '%';
+            foreach ($filters as $filter) {
+
+                if (!empty($filter->rules)) {
+                    if ($filter->condition == 'OR') {
+                        $this->builder->orWhere(function ($query) use ($filter) {
+                            foreach ($filter->rules as $rule) {
+                                $this->queryCondition($query, $filter->rules);
+                            }
+                        });
+                    } else {
+                        $this->builder->where(function ($query) use ($filter) {
+                            $this->queryCondition($query, $filter->rules);
+                        });
                     }
-                    $this->builder->where($recordFilter['key'], $recordFilter['operator'], $value);
-                    $this->reportFilters[$filter]['value'] = $value;
                 }
             }
+        }
+    }
+
+    private function queryCondition($query, $rules)
+    {
+        $clauseBuilder = new ClauseBuilder($query);
+        foreach ($rules as $rule) {
+            $query = $clauseBuilder
+                ->setOperator($rule->operator, $rule->condition)
+                ->setField($rule->field)
+                ->setValue($rule->value)
+                ->get();
         }
     }
 

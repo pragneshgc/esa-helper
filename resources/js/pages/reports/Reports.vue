@@ -62,14 +62,15 @@
                 <div class="d-flex align-items-center">
                     <button class="btn btn-sm btn-primary" @click="addGroup">Add Group</button>
                 </div>
-                <RuleGroup :fields="reportFields" />
-                <template v-for="(group, index) in ruleGroups" :key="index">
-                    <select class="form-select form-select-sm" style="width:75px; background-color: #b2cce5;"
-                        v-model="groupOperator[index]">
-                        <option value="AND">AND</option>
-                        <option value="OR">OR</option>
-                    </select>
-                    <RuleGroup :fields="reportFields" :index="group.id" @removeGroup="onRemoveGroup" />
+                <template v-for="(group, index) in queryGroups" :key="index">
+                    <template v-if="index != 0">
+                        <select class="form-select form-select-sm" style="width:75px; background-color: #b2cce5;"
+                            v-model="queryGroups[index].condition">
+                            <option value="AND">AND</option>
+                            <option value="OR">OR</option>
+                        </select>
+                    </template>
+                    <RuleGroup :fields="reportFields" :index="group.id" />
                 </template>
             </section>
 
@@ -169,7 +170,8 @@ import { useQueryGroup } from '../../composables/useQueryGroup';
 const route = useRoute();
 
 const {
-    rule
+    queryGroups,
+    addQueryGroup,
 } = useQueryGroup();
 
 const loading = ref(false);
@@ -186,13 +188,16 @@ const data = ref({
     to: 1,
     data: {}
 });
+
 const filters = ref([]);
 const headers = ref([]);
-const ruleGroups = ref([]);
 const groupOperator = ref([]);
+const defaultGroupId = `group-${Math.random()}`;
+
 
 onMounted(() => {
     getReportColumns();
+    addQueryGroup(defaultGroupId);
 });
 
 const getReportColumns = () => {
@@ -202,22 +207,14 @@ const getReportColumns = () => {
 }
 
 const genrateReport = () => {
-    console.log({
-        fields: reportFields.value,
-        groupBy: groupBy.value,
-        limit: limit.value,
-        order: order.value,
-        ruleGroups: groupOperator.value,
-        rules: rule
-    });
-
-    /* loading.value = true;
+    loading.value = true;
     axios.get(reportUrl.value, {
         params: {
             fields: reportFields.value,
             groupBy: groupBy.value,
             limit: limit.value,
-            order: order.value
+            order: order.value,
+            filter: JSON.stringify(queryGroups.value)
         }
     }).then((response) => {
         data.value = response.data.data.records;
@@ -227,7 +224,7 @@ const genrateReport = () => {
         loading.value = false;
     }).finally(() => {
         loading.value = false;
-    }); */
+    });
 }
 
 const setOrder = (key) => {
@@ -252,15 +249,7 @@ const order = computed(() => {
 });
 
 const addGroup = () => {
-    ruleGroups.value.push({
-        'id': `group-${Math.random()}`
-    });
-}
-
-const onRemoveGroup = (index) => {
-    ruleGroups.value = ruleGroups.value.filter((group) => {
-        return group.id !== index
-    });
+    addQueryGroup(`group-${Math.random()}`);
 }
 
 watch(limit, (value) => {
