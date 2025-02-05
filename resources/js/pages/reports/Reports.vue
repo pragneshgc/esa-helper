@@ -81,8 +81,9 @@
             <section class="p-3" v-if="reportFields.length > 0">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name">
-                        <button class="btn btn-primary" type="button">Save</button>
+                        <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name"
+                            v-model="reportName">
+                        <button class="btn btn-primary" type="button" @click="saveReport">Save Report</button>
                     </div>
                 </div>
             </section>
@@ -166,7 +167,6 @@ import PaginationComponent from '../../components/PaginationComponent.vue';
 import RuleGroup from './RuleGroup.vue';
 import { useQueryGroup } from '../../composables/useQueryGroup';
 
-
 const route = useRoute();
 
 const {
@@ -191,9 +191,9 @@ const data = ref({
 
 const filters = ref([]);
 const headers = ref([]);
-const groupOperator = ref([]);
 const defaultGroupId = `group-${Math.random()}`;
-
+const reports = ref([]);
+const reportName = ref('');
 
 onMounted(() => {
     getReportColumns();
@@ -238,6 +238,24 @@ const changePage = (page) => {
         if (page === data.value.current_page) return;
         data.value.current_page = page;
         genrateReport();
+    }
+}
+
+const saveReport = () => {
+    if (reportName.value != '') {
+        axios.post('/save-report', {
+            "name": reportName.value,
+            fields: {
+                fields: reportFields.value,
+                groupBy: groupBy.value,
+                limit: limit.value,
+                order: order.value,
+                filter: JSON.stringify(queryGroups.value)
+            }
+        })
+            .then((response) => {
+                console.log(response);
+            })
     }
 }
 
