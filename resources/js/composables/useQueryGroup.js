@@ -4,43 +4,42 @@ const queryGroups = ref([]);
 const rules = ref([]);
 
 export function useQueryGroup() {
-
   const addQueryGroup = (groupId) => {
     queryGroups.value.push({
       id: groupId,
       rules: [],
-      condition: ''
+      condition: "",
     });
-  }
+  };
 
   const removeQueryGroup = (index) => {
     queryGroups.value = queryGroups.value.filter((group) => {
-      return group.id !== index
+      return group.id !== index;
     });
-  }
+  };
 
   const addRule = (groupindex, rule) => {
     queryGroups.value.filter((group) => {
       if (group.id === groupindex) {
         group.rules.push({
           id: rule,
-          field: '',
-          operator: '',
-          value: '',
-          condition: ''
+          field: "",
+          operator: "",
+          value: "",
+          condition: "",
         });
       }
     });
 
     rules.value.push(rule);
-  }
+  };
 
   const updateRuleFilter = (groupindex, ruleindex, filter) => {
     queryGroups.value.filter((group) => {
       if (group.id === groupindex) {
         group.rules.filter((rule) => {
           if (rule.id === ruleindex) {
-            rule.condition = filter.condition
+            rule.condition = filter.condition;
             rule.field = filter.field;
             rule.operator = filter.operator;
             rule.value = filter.value;
@@ -48,7 +47,7 @@ export function useQueryGroup() {
         });
       }
     });
-  }
+  };
 
   const removeRule = (groupindex, ruleindex) => {
     queryGroups.value.filter((group) => {
@@ -58,7 +57,7 @@ export function useQueryGroup() {
     });
 
     rules.value = rules.value.filter((rule) => rule !== ruleindex);
-  }
+  };
 
   const findGroup = (groupindex) => {
     let groups = queryGroups.value.filter((group) => {
@@ -67,7 +66,7 @@ export function useQueryGroup() {
       }
     });
     return groups;
-  }
+  };
 
   const getGroupRules = (groupindex) => {
     let groups = queryGroups.value.filter((group) => {
@@ -76,7 +75,11 @@ export function useQueryGroup() {
       }
     });
     return groups;
-  }
+  };
+
+  const setQueryGroups = (values) => {
+    queryGroups.value = values;
+  };
 
   return {
     queryGroups,
@@ -87,6 +90,7 @@ export function useQueryGroup() {
     removeRule,
     findGroup,
     getGroupRules,
-    updateRuleFilter
+    updateRuleFilter,
+    setQueryGroups,
   };
 }

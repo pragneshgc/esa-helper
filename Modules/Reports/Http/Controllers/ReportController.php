@@ -46,4 +46,24 @@ class ReportController
         $reports = DynamicReport::all();
         return sendResponse($reports, 'Success');
     }
+
+    public function update($id, Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required',
+            'fields' => 'nullable'
+        ]);
+        DynamicReport::where('id', $id)->update([
+            'name' => $validated['name'],
+            'fields' => json_encode($validated['fields'])
+        ]);
+
+        return sendResponse([], 'Report updated successfully!');
+    }
+
+    public function delete($id, Request $request)
+    {
+        DynamicReport::where('id', $id)->delete();
+        return sendResponse([], 'Report deleted successfully!');
+    }
 }

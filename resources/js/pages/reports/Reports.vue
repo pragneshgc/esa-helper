@@ -94,11 +94,22 @@
 
             <section class="p-3" v-if="reportFields.length > 0">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name"
-                            v-model="reportName">
-                        <button class="btn btn-primary" type="button" @click="saveReport">Save Report</button>
-                    </div>
+                    <template v-if="!loadedSavedReport">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name"
+                                v-model="reportName">
+                            <button class="btn btn-primary" type="button" @click="saveReport">Save Report</button>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name"
+                                v-model="reportName">
+                            <button class="btn btn-primary" type="button" @click="saveReportAs">Save Report As</button>
+                            <button class="btn btn-success" type="button" @click="updateReport">Update Report</button>
+                            <button class="btn btn-danger" type="button" @click="deleteReport">Delete Report</button>
+                        </div>
+                    </template>
                 </div>
             </section>
         </div>
@@ -109,7 +120,7 @@
                 <div class="d-flex justify-content-end align-items-center mb-3">
                     <div class="d-flex justify-content-center align-items-center">
                         <label class="form-label m-0 me-2">PerPage:</label>
-                        <select v-model="limit" class="form-select" @change="updatePageLimit()">
+                        <select v-model="limit" class="form-select">
                             <option value="10">Show 10</option>
                             <option value="20">Show 20</option>
                             <option value="50">Show 50</option>
@@ -187,6 +198,7 @@ const route = useRoute();
 const {
     queryGroups,
     addQueryGroup,
+    setQueryGroups
 } = useQueryGroup();
 
 const loading = ref(false);
@@ -205,11 +217,11 @@ const data = ref({
     data: {}
 });
 
-const filters = ref([]);
 const headers = ref([]);
 const defaultGroupId = `group-${Math.random()}`;
 const reports = ref([]);
 const reportName = ref('');
+const loadedSavedReport = ref(false);
 
 onMounted(() => {
     getReportColumns();
@@ -235,7 +247,6 @@ const genrateReport = () => {
         }
     }).then((response) => {
         data.value = response.data.data.records;
-        filters.value = response.data.data.filters;
         headers.value = reportFields.value;
 
         loading.value = false;
@@ -282,6 +293,50 @@ const saveReport = () => {
     }
 }
 
+const deleteReport = () => {
+    axios.delete(`/delete-report/${selectedReport.value.id}`)
+        .then((response) => {
+
+            getReportColumns();
+            getSavedReports();
+            addQueryGroup(defaultGroupId);
+        });
+}
+
+const reset = () => {
+    loadedSavedReport.value = false;
+    reportName.value = '';
+    fields.value = [];
+    reportFields.value = [];
+    groupBy.value = '';
+    limit.value = 200;
+    orderBy.value = '';
+    orderDirection.value = '';
+    selectedReport.value = {};
+    setQueryGroups({});
+}
+
+const saveReportAs = () => {
+    loadedSavedReport.value = false;
+    reportName.value = '';
+}
+
+const updateReport = () => {
+    axios.patch(`/update-report/${selectedReport.value.id}`, {
+        "name": reportName.value,
+        fields: {
+            fields: reportFields.value,
+            groupBy: groupBy.value,
+            limit: limit.value,
+            order: order.value,
+            filter: JSON.stringify(queryGroups.value)
+        }
+    })
+        .then((response) => {
+
+        });
+}
+
 const order = computed(() => {
     return JSON.stringify({
         orderBy: orderBy.value,
@@ -290,8 +345,19 @@ const order = computed(() => {
 });
 
 const saveReportChanged = (event) => {
-    console.log('selected report', selectedReport.value);
-    console.log(JSON.parse(selectedReport.value.fields));
+    if (selectedReport.value != '') {
+        let report = JSON.parse(selectedReport.value.fields);
+        let order = JSON.parse(report.order);
+        let filter = JSON.parse(report.filter);
+        limit.value = report.limit;
+        groupBy.value = report.groupBy;
+        orderBy.value = order.orderBy;
+        orderDirection.value = order.orderDirection;
+        reportFields.value = report.fields;
+        reportName.value = selectedReport.value.name;
+        setQueryGroups(filter);
+        loadedSavedReport.value = true;
+    }
 }
 
 const addGroup = () => {
@@ -305,6 +371,8 @@ const log = (e) => {
 }
 
 watch(limit, (value) => {
-    genrateReport();
+    if (data.value.data.length) {
+        genrateReport();
+    }
 });
 </script>

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build-dev": "SET NODE_ENV=development && vite build --mode development",
-    "build-dev-watch": "SET NODE_ENV=development && vite build --mode development --watch",
+    "build-dev-watch": "vite build --mode development --watch",
     "build": "vite build",
     "watch": "vite build --watch"
   },
