@@ -40,4 +40,10 @@ class ReportController
 
         return sendResponse(true, 'Report saved successfully!');
     }
+
+    public function getSavedReports()
+    {
+        $reports = DynamicReport::all();
+        return sendResponse($reports, 'Success');
+    }
 }

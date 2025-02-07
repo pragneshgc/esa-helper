@@ -76,6 +76,14 @@ class OrderReport implements ReportContract
                 'text' => 'Order.Courier',
                 'enum' => Courier::class
             ],
+            [
+                'key' => 'Prescription.CreatedDate',
+                'text' => 'Order Received Date',
+            ],
+            [
+                'key' => 'Prescription.UpdatedDate',
+                'text' => 'Order Processed Date',
+            ],
         ];
     }
 

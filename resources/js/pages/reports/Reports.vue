@@ -7,11 +7,12 @@
             <h2>Report Builder</h2>
 
             <section class="mb-3 p-3">
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>Select saved report</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                <select class="form-select" aria-label="Default select example" v-model="selectedReport"
+                    @change="saveReportChanged($event)">
+                    <option selected value="">Select saved report</option>
+                    <template v-for="(report, index) in reports" :key="field">
+                        <option :value="report">{{ report.name }}</option>
+                    </template>
                 </select>
             </section>
 
@@ -33,6 +34,19 @@
                     </template>
 
                 </div>
+            </section>
+
+            <section v-if="reportFields.length > 0" class="p-3">
+                <div class="d-flex align-items-center mb-1">
+                    <p class="text-capitalize fw-bold mb-0 me-3">Selected Fields</p>
+                    <small class="fst-italic">Drag-Drop fields to arrange in order for a report</small>
+                </div>
+                <VueDraggableNext class="dragArea w-full d-flex" :list="reportFields" @change="log">
+                    <div class="bg-secondary text-white text-center border-1 p-2 me-1" v-for="element in reportFields"
+                        :key="element.key">
+                        {{ element.text }}
+                    </div>
+                </VueDraggableNext>
             </section>
 
             <section v-if="reportFields.length > 0" class="p-3">
@@ -166,6 +180,7 @@ import { useRoute } from 'vue-router';
 import PaginationComponent from '../../components/PaginationComponent.vue';
 import RuleGroup from './RuleGroup.vue';
 import { useQueryGroup } from '../../composables/useQueryGroup';
+import { VueDraggableNext } from 'vue-draggable-next';
 
 const route = useRoute();
 
@@ -182,6 +197,7 @@ const reportUrl = ref('/generate-report');
 const limit = ref(200);
 const orderBy = ref('');
 const orderDirection = ref('');
+const selectedReport = ref({});
 
 const data = ref({
     current_page: route.query.p || 1,
@@ -197,6 +213,7 @@ const reportName = ref('');
 
 onMounted(() => {
     getReportColumns();
+    getSavedReports();
     addQueryGroup(defaultGroupId);
 });
 
@@ -225,6 +242,12 @@ const genrateReport = () => {
     }).finally(() => {
         loading.value = false;
     });
+}
+
+const getSavedReports = () => {
+    axios.get('/get-saved-reports').then((response) => {
+        reports.value = response.data.data;
+    })
 }
 
 const setOrder = (key) => {
@@ -266,8 +289,19 @@ const order = computed(() => {
     });
 });
 
+const saveReportChanged = (event) => {
+    console.log('selected report', selectedReport.value);
+    console.log(JSON.parse(selectedReport.value.fields));
+}
+
 const addGroup = () => {
     addQueryGroup(`group-${Math.random()}`);
+}
+
+const log = (e) => {
+    if (data.value.data.length) {
+        genrateReport();
+    }
 }
 
 watch(limit, (value) => {
