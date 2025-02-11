@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url('vendor/fontawesome/css/all.min.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/esa/style.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/esa/app.css') }}" />
+
 </head>
 
 <body>

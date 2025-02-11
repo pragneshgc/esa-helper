@@ -2,7 +2,7 @@
     <div class="d-flex border p-2 flex-column">
         <div class="d-flex justify-content-between">
             <div class="d-flex align-items-center">
-                <button class="btn btn-sm btn-primary" @click="onAddRule">Add Rule</button>
+                <button class="btn btn-sm btn-primary text-white" @click="onAddRule">Add Rule</button>
                 <p class="text-info m-0 ps-3">Add rule to filter records.</p>
             </div>
             <button class="btn btn-danger" @click="removeQueryGroup(index)">

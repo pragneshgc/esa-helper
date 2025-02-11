@@ -1,4 +1,5 @@
 //Pages
+import { ROLES } from '../helpers/roles';
 const routes = [
     {
         path: "/",
@@ -7,6 +8,10 @@ const routes = [
             import(
                 /* webpackChunkName: "Dashboard" */ "@/pages/Dashboard.vue"
             ),
+        meta: {
+            requiresAuth: true,
+            allowedRoles: [ROLES.ADMIN]
+        }
     },
     {
         path: "/settings",
@@ -25,6 +30,19 @@ const routes = [
         name: "esa.reports",
         component: () =>
             import(/* webpackChunkName: "Reports" */ "@/pages/reports/Reports.vue"),
+        meta: {
+            requiresAuth: true,
+            allowedRoles: [ROLES.ADMIN]
+        }
+    },
+    {
+        path: "/login",
+        name: "esa.login",
+        component: () =>
+            import(/* webpackChunkName: "Login" */ "@/pages/Login.vue"),
+        meta: {
+            requiresAuth: false,
+        }
     },
 ];
 

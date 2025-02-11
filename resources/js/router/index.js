@@ -9,4 +9,14 @@ const router = createRouter({
     },
 });
 
+const user = JSON.parse(localStorage.getItem('esa.user'));
+router.beforeEach((to, from, next) => {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+        if (!user) {
+            next({ name: 'esa.login' });
+        }
+    }
+    next();
+});
+
 export default router;

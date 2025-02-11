@@ -4,7 +4,7 @@
             <div class="loader loader-fixed" v-show="loading">Loading...</div>
         </transition>
         <div class="border border-2 mb-3 rounded bg-light">
-            <h2>Report Builder</h2>
+            <h2 class="ms-3 mt-2">Report Builder</h2>
 
             <section class="mb-3 p-3">
                 <select class="form-select" aria-label="Default select example" v-model="selectedReport"
@@ -74,7 +74,7 @@
 
             <section v-if="reportFields.length > 0" class="p-3 d-flex flex-column">
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-primary" @click="addGroup">Add Group</button>
+                    <button class="btn btn-sm btn-primary text-white" @click="addGroup">Add Group</button>
                 </div>
                 <template v-for="(group, index) in queryGroups" :key="index">
                     <template v-if="index != 0">
@@ -98,14 +98,16 @@
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name"
                                 v-model="reportName">
-                            <button class="btn btn-primary" type="button" @click="saveReport">Save Report</button>
+                            <button class="btn btn-primary text-white" type="button" @click="saveReport">Save
+                                Report</button>
                         </div>
                     </template>
                     <template v-else>
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Report Name" aria-label="Report name"
                                 v-model="reportName">
-                            <button class="btn btn-primary" type="button" @click="saveReportAs">Save Report As</button>
+                            <button class="btn btn-primary text-white" type="button" @click="saveReportAs">Save Report
+                                As</button>
                             <button class="btn btn-success" type="button" @click="updateReport">Update Report</button>
                             <button class="btn btn-danger" type="button" @click="deleteReport">Delete Report</button>
                         </div>
@@ -130,13 +132,13 @@
                         </select>
                     </div>
                     <div class="filter-button-group">
-                        <a title="Print the results" class="btn btn-primary waves-effect">
+                        <a title="Print the results" class="btn btn-outline-primary waves-effect">
                             <i class="fa-solid fa-print" aria-hidden="true"></i>
                         </a>
-                        <a title="Download results as PDF" class="btn btn-primary waves-effect">
+                        <a title="Download results as PDF" class="btn btn-outline-primary waves-effect">
                             <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
                         </a>
-                        <a title="Download results as CSV" class="btn btn-primary waves-effect">
+                        <a title="Download results as CSV" class="btn btn-outline-primary waves-effect">
                             <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
                         </a>
                     </div>
