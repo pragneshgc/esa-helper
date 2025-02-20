@@ -31,10 +31,30 @@
                         <option value="IS_NOT_NULL">is not empty</option>
                         <option value="BETWEEN">between</option>
                         <option value="NOT_BETWEEN">not between</option>
+                        <option value="WHERE_DATE">date</option>
+                        <option value="WHERE_DATE_BETWEEN">date between</option>
+                        <option value="WHERE_DATETIME">datetime</option>
+                        <option value="WHERE_DATETIME_BETWEEN">datetime between</option>
                     </select>
                     <template v-if="rule.operator === 'BETWEEN' || rule.operator === 'NOT_BETWEEN'">
                         <input class="form-control" type="text" v-model="valueArr[0]" @change="updateBetween" />
                         <input class="form-control" type="text" v-model="valueArr[1]" @change="updateBetween" />
+                    </template>
+                    <template v-else-if="rule.operator === 'WHERE_DATE'">
+                        <VueDatePicker v-model="rule.value" :enable-time-picker="false" format="dd/MM/yyyy">
+                        </VueDatePicker>
+                    </template>
+                    <template v-else-if="rule.operator === 'WHERE_DATE_BETWEEN'">
+                        <VueDatePicker v-model="rule.value" range :enable-time-picker="false" format="dd/MM/yyyy">
+                        </VueDatePicker>
+                    </template>
+                    <template v-else-if="rule.operator === 'WHERE_DATETIME'">
+                        <VueDatePicker v-model="rule.value" format="dd/MM/yyyy HH:mm">
+                        </VueDatePicker>
+                    </template>
+                    <template v-else-if="rule.operator === 'WHERE_DATETIME_BETWEEN'">
+                        <VueDatePicker v-model="rule.value" range format="dd/MM/yyyy HH:mm">
+                        </VueDatePicker>
                     </template>
                     <template v-else>
                         <input class="form-control" type="text" v-model="rule.value" @change="ruleUpdated" />
@@ -51,6 +71,7 @@
 <script setup>
 import { onMounted, onUpdated, ref, watch } from 'vue';
 import { useQueryGroup } from '../../composables/useQueryGroup';
+import VueDatePicker from '@vuepic/vue-datepicker';
 
 const props = defineProps(['fields', 'groupIndex', 'index', 'itemNumber', 'values']);
 
