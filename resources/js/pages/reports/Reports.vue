@@ -194,6 +194,7 @@ import PaginationComponent from '../../components/PaginationComponent.vue';
 import RuleGroup from './RuleGroup.vue';
 import { useQueryGroup } from '../../composables/useQueryGroup';
 import { VueDraggableNext } from 'vue-draggable-next';
+import { toast } from "vue3-toastify";
 
 const route = useRoute();
 
@@ -224,6 +225,7 @@ const defaultGroupId = `group-${Math.random()}`;
 const reports = ref([]);
 const reportName = ref('');
 const loadedSavedReport = ref(false);
+const reportType = ref('');
 
 onMounted(() => {
     getReportColumns();
@@ -245,7 +247,8 @@ const genrateReport = () => {
             groupBy: groupBy.value,
             limit: limit.value,
             order: order.value,
-            filter: JSON.stringify(queryGroups.value)
+            filter: JSON.stringify(queryGroups.value),
+            reportType: reportType.value,
         }
     }).then((response) => {
         data.value = response.data.data.records;
@@ -286,11 +289,17 @@ const saveReport = () => {
                 groupBy: groupBy.value,
                 limit: limit.value,
                 order: order.value,
-                filter: JSON.stringify(queryGroups.value)
+                filter: JSON.stringify(queryGroups.value),
+                reportType: reportType.value,
             }
         })
             .then((response) => {
-                console.log(response);
+                toast(response.data.message, {
+                    "theme": "colored",
+                    "type": "success",
+                    "dangerouslyHTMLString": true
+                });
+                reset();
             })
     }
 }
@@ -308,7 +317,6 @@ const deleteReport = () => {
 const reset = () => {
     loadedSavedReport.value = false;
     reportName.value = '';
-    fields.value = [];
     reportFields.value = [];
     groupBy.value = '';
     limit.value = 200;

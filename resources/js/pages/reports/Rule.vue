@@ -105,7 +105,6 @@ const ruleUpdated = () => {
 
 const updateBetween = () => {
     rule.value.value = valueArr.value.join(',');
-    console.log(valueArr.value, rule.value);
     updateRuleFilter(props.groupIndex, props.index, rule.value);
 }
 

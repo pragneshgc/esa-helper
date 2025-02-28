@@ -339,7 +339,6 @@ export default {
                     searchFilter[filter.key] = filter.value;
                 }
             });
-            console.log('filter', _.isEmpty(searchFilter), JSON.stringify(searchFilter));
             return _.isEmpty(searchFilter) ? {} : JSON.stringify(searchFilter);
         },
         dateOptions() {

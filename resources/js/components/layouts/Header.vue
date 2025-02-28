@@ -19,7 +19,6 @@ import { computed } from 'vue';
 
 const username = computed(() => {
     let user = JSON.parse(localStorage.getItem('esa.user'));
-    console.log(user, user.name);
     return user.name + " " + user.surname;
 })
 </script>
