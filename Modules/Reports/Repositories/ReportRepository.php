@@ -9,7 +9,7 @@ class ReportRepository
 {
     public function getOrderCount($start, $end, $status)
     {
-        return DB::table('prescription')
+        return DB::table('prescriptionhistory')
             ->whereBetween('UpdatedDate', [$start, $end])
             ->where('Status', $status)
             ->count();
@@ -17,7 +17,7 @@ class ReportRepository
 
     public function getShippedFridgeOrder($start, $end)
     {
-        return DB::table('prescription as p')
+        return DB::table('prescriptionhistory as p')
             ->join('product as pr', 'p.PrescriptionID', '=', 'pr.PrescriptionID')
             ->join('productcode as pc', 'pr.Code', '=', 'pc.Code')
             ->where('pc.Fridge', 1)
