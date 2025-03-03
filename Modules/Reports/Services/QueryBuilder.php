@@ -3,11 +3,10 @@
 namespace Modules\Reports\Services;
 
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Reports\Enums\FilterType;
-use Illuminate\Database\Query\Builder;
-use Modules\Reports\Enums\FilterOperator;
 
 
 class QueryBuilder

@@ -44,6 +44,15 @@ const routes = [
             requiresAuth: false,
         }
     },
+    {
+        path: "/montly-report",
+        name: "esa.montly-report",
+        component: () =>
+            import(/* webpackChunkName: "MonthlyReport" */ "@/pages/MonthlyReport.vue"),
+        meta: {
+            requiresAuth: false,
+        }
+    }
 ];
 
 export default routes;
