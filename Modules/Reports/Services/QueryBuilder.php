@@ -29,7 +29,7 @@ class QueryBuilder
     private array $filters = [];
     private array $reportFilters = [];
     private array $datefields = [];
-    static $DATE_FORMAT = 'd M Y H:i';
+    const DATE_FORMAT = 'd M Y H:i';
     public function __construct(protected array $registerClasses, protected Request $request)
     {
         foreach ($this->registerClasses as $key => $reportClass) {
@@ -75,7 +75,7 @@ class QueryBuilder
                     $cases = $reflection->getCases();
                     $item->$k = $this->getEnumNameFrom($cases, $i);
                 } elseif (in_array($k, array_keys($this->datefields))) {
-                    $item->$k = Carbon::parse($i)->format(self::$DATE_FORMAT);
+                    $item->$k = Carbon::parse($i)->format(self::DATE_FORMAT);
                 }
             }
 
