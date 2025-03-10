@@ -57,7 +57,6 @@ export default {
     },
     methods: {
         changePage(page) {
-            console.log('emitting click');
             this.$emit('change', page);
         }
     },

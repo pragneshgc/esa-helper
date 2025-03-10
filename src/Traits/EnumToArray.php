@@ -2,6 +2,8 @@
 
 namespace Esa\Helper\Traits;
 
+use Exception;
+
 trait EnumToArray
 {
     public static function names(): array

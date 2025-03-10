@@ -1,9 +1,10 @@
 <?php
 
-namespace Esa\Helper\Provider;
+namespace Esa\Helper\Providers;
 
-use Esa\Helper\Modules\Reports\Providers\ReportServiceProvider;
 use Illuminate\Support\ServiceProvider;
+use Modules\Auth\Providers\AuthServiceProvider;
+use Modules\Reports\Providers\ReportServiceProvider;
 
 class PackageServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,7 @@ class PackageServiceProvider extends ServiceProvider
 
     private function registerProviders()
     {
-        //$this->app->register(ReportServiceProvider::class);
+        $this->app->register(AuthServiceProvider::class);
+        $this->app->register(ReportServiceProvider::class);
     }
 }

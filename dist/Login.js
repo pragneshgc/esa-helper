@@ -1,0 +1,1 @@
+import{_ as o,q as t}from"./app.js";const a={__name:"Login",setup(n,{expose:r}){r(),t(()=>{let s="http://pharmacy.uk-esa.test/";window.location.href=s});const e={onMounted:t};return Object.defineProperty(e,"__isScriptSetup",{enumerable:!1,value:!0}),e}},p=o(a,[["__file","D:/laragon/www/esa/esa-helper/resources/js/pages/Login.vue"]]);export{p as default};

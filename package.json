@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build-dev": "SET NODE_ENV=development && vite build --mode development",
+    "build-dev-watch": "SET NODE_ENV=development && vite build --mode development --watch",
     "build": "vite build",
     "watch": "vite build --watch"
   },
@@ -12,6 +14,7 @@
     "@vitejs/plugin-vue": "^5.1.5",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "cross-env": "^7.0.3",
     "lodash": "^4.17.21",
     "popper.js": "^1.16.1",
     "sass": "^1.81.0",
@@ -20,6 +23,8 @@
     "vue-router": "^4.4.5"
   },
   "dependencies": {
-    "vue-draggable-next": "^2.2.1"
+    "@vuepic/vue-datepicker": "^11.0.1",
+    "vue-draggable-next": "^2.2.1",
+    "vue3-toastify": "^0.2.8"
   }
 }

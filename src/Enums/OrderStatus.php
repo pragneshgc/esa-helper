@@ -20,6 +20,8 @@ enum OrderStatus: int
     case QUERIED_DISPENSED = 12;
     case QUERIED_NOT_DISPENSED = 13;
     case RETURNED = 16;
+    case RESEND = 17;
+    case PENDING_CD_RX = 18;
 
     public function slug(): string
     {

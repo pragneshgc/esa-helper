@@ -6,15 +6,14 @@
         </transition>
 
         <h2>Report Dashboard</h2>
-
+        <hr>
         <div class="row">
             <div class="col">
-                <h3>Table Fields</h3>
 
                 <div class="list-group-item" v-for="(element, field) in fields" :key="element.name">
                     <ul class="list-group-ul">
                         <span>{{ field }}</span>
-                        <draggable class="list-group" :list="element.fields" group="people">
+                        <draggable class="list-group" :list="element.fields" group="fields">
                             <li class="list-group-li text-center" v-for="(index, field) in element.fields">
                                 <span class="list-item">{{ index.text }}</span>
                             </li>
@@ -24,20 +23,89 @@
 
             </div>
             <hr>
+
             <div class="col">
                 <h3>Reports Fields</h3>
                 <ul class="list-group-ul report-dropbox">
-                    <draggable class="list-group" v-model="reportFields" :list="reportFields" group="people">
+                    <draggable class="list-group" v-model="reportFields" :list="reportFields" group="fields">
                         <li class="list-group-li" v-for="(index, field) in reportFields">
                             <span class="list-item">{{ index.text }}</span>
                         </li>
                     </draggable>
                 </ul>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-3">
+
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">GroupBy</span>
+
+                            <select v-model="groupBy" class="form-control" placeholder="Select Option"
+                                aria-describedby="basic-addon1">
+                                <template v-for="(option, i) in reportFields">
+                                    <option :value="option.key">
+                                        {{ option.text }}
+                                    </option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-3">
+
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1">FilterBy</span>
+
+                            <select v-model="dateFilter" class="form-control" placeholder="Select Option"
+                                aria-describedby="basic-addon1">
+                                <template v-for="(option, i) in reportFields">
+                                    <option :value="option.key">
+                                        {{ option.text }}
+                                    </option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-9">
+                        <VueDatePicker v-model="date" range :enable-time-picker="false" format="dd/MM/yyyy">
+                        </VueDatePicker>
+                    </div>
+                </div>
+
+                <div v-if="dateFilter != ''">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" v-model="dateGroupBy" value="" name="groupBy"
+                            id="group-none" checked>
+                        <label class="form-check-label" for="group-none">
+                            None
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" v-model="dateGroupBy" value="hours" name="groupBy"
+                            id="group-hours">
+                        <label class="form-check-label" for="group-hours">
+                            Group By Hours
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" v-model="dateGroupBy" value="days" name="groupBy"
+                            id="group-days">
+                        <label class="form-check-label" for="group-days">
+                            Group By Days
+                        </label>
+                    </div>
+                </div>
+
+
+                <hr style="margin: 20px 0px">
+
                 <button type="button" class="btn btn-primary" @click="getData()"
-                    :disabled="reportFields.length < 3">Generate Report</button>
+                    :disabled="reportFields.length == 0">Generate
+                    Report</button>
             </div>
         </div>
-
         <hr style="margin: 20px 0px">
 
         <section class="card">
@@ -77,22 +145,54 @@
                 <table class="table table-striped table-sm">
                     <thead class="thead-dark">
                         <tr class="report-header">
-                            <th v-for="(header, index) in headers" :key="index" scope="col"
-                                @click="setOrder(header.key)">
-                                {{ header.text }}
+                            <th v-for="(header, index) in headers" :key="index" scope="col">
+                                <div class="input-group">
+                                    <span class="me-3">{{ header.text }}</span>
 
-                                <span>
-                                    <i v-if="header.key == orderBy && orderDirection == 'DESC'"
-                                        class="fa fa-caret-down"></i>
-                                    <i v-if="header.key == orderBy && orderDirection == 'ASC'"
-                                        class="fa fa-caret-up"></i>
-                                    <i v-if="header.key != orderBy" class="fa fa-sort"></i>
-                                </span>
+                                    <span class="input-group-text me-2" id="basic-addon01"
+                                        @click="setOrder(header.key)">
+                                        <i v-if="header.key == orderBy && orderDirection == 'DESC'"
+                                            class="fa fa-caret-down"></i>
+                                        <i v-if="header.key == orderBy && orderDirection == 'ASC'"
+                                            class="fa fa-caret-up"></i>
+                                        <i v-if="header.key != orderBy" class="fa fa-sort"></i>
+                                    </span>
+                                    <span class="input-group-text" id="basic-addon02" @click="showFilter(header.key)">
+                                        <i class="fa-solid fa-filter"></i>
+                                    </span>
+                                </div>
+
                             </th>
                         </tr>
                         <tr>
-                            <th v-for="(header, index) in headers" :key="index" scope="col">
-                                <i class="fa-solid fa-filter"></i>
+                            <th v-for="(filter, index) in filters" :key="index" scope="col">
+                                <div class="input-group" v-if="showFilters.includes(filter.key)">
+                                    <template v-if="filter.type == 'dropdown'">
+                                        <select class="form-select" v-model="filter.value">
+                                            <option value="">Select {{ filter.text }}</option>
+                                            <option v-for="(option, i) in filter.values" :key="i"
+                                                :value="option[filter.column]">
+                                                {{ option[filter.column] }}
+                                            </option>
+                                        </select>
+                                    </template>
+                                    <template v-else-if="filter.type == 'date'">
+                                        <input type="date" class="form-control" :placeholder="filter.column"
+                                            v-model="filter.value" />
+                                    </template>
+                                    <template v-else>
+                                        <input type="text" class="form-control" :placeholder="filter.column"
+                                            v-model="filter.value" />
+                                    </template>
+
+                                    <span class="input-group-text" id="basic-addon1" @click="search()">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </span>
+                                    <span class="input-group-text bg-danger" id="basic-addon2"
+                                        @click="hideFilter(filter.key)">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </div>
                             </th>
                         </tr>
                     </thead>
@@ -112,9 +212,11 @@
 </template>
 <script>
 import axios from 'axios';
-import { update } from 'lodash';
 import { defineAsyncComponent } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next'
+import _ from 'lodash';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import { groupBy } from 'lodash';
 
 export default {
     mixins: [Error],
@@ -136,23 +238,42 @@ export default {
             filters: {},
             limit: '200',
             loading: false,
+            showFilters: [],
+            date: null,
+            dateFilter: '',
+            dateGroupBy: '',
+            groupBy: '',
         }
     },
     components: {
         draggable: VueDraggableNext,
-        'PaginationComponent': defineAsyncComponent(() => import('../../components/PaginationComponent.vue'))
+        'PaginationComponent': defineAsyncComponent(() => import('../../components/PaginationComponent.vue')),
+        VueDatePicker
     },
     mounted() {
         this.getReportColumns();
     },
     methods: {
+        showFilter(column) {
+            this.showFilters.push(column);
+        },
+        hideFilter(column) {
+            var index = this.showFilters.indexOf(column);
+            if (index !== -1) {
+                this.showFilters.splice(index, 1);
+            }
+            this.filters[column].value = '';
+            this.getData();
+        },
+        search() {
+            this.getData();
+        },
         getReportColumns() {
             axios.get('/get-dynamic-reports').then((response) => {
                 this.fields = response.data.data;
             });
         },
         changePage: function (page) {
-            console.log('report changepage');
             if (!this.loading) {
                 if (page === this.data.current_page) return;
                 this.data.current_page = page;
@@ -166,7 +287,6 @@ export default {
         },
         getData() {
             this.loading = true;
-
             axios.get(this.dataUrl, {
                 params: {
                     fields: this.reportFields,
@@ -176,17 +296,21 @@ export default {
                     f: this.currentFilterParam,
                     orderBy: this.currentOrderByParam,
                     orderDirection: this.currentOrderDirectionParam,
+                    groupBy: this.groupBy,
+                    dateOptions: this.dateOptions,
                 }
             })
                 .then((response) => {
-                    this.data = response.data.data;
+                    this.data = response.data.data.records;
+                    this.filters = response.data.data.filters;
                     this.headers = this.reportFields;
+
                     this.loading = false;
                 })
                 .catch((error) => {
                     console.log(error);
                 })
-        },
+        }
     },
     computed: {
         currentPageParam: function () {
@@ -209,11 +333,24 @@ export default {
             return this.limit != '' ? this.limit : '';
         },
         currentFilterParam: function () {
-            return this.filters != '' ? this.filters : '';
+            let searchFilter = {};
+            Object.values(this.filters).forEach((filter) => {
+                if (filter.value != '') {
+                    searchFilter[filter.key] = filter.value;
+                }
+            });
+            return _.isEmpty(searchFilter) ? {} : JSON.stringify(searchFilter);
         },
+        dateOptions() {
+            return {
+                dateRange: this.date,
+                dateFitler: this.dateFilter,
+                dateGroupBy: this.dateGroupBy,
+            }
+        }
     },
     watch: {
-        limit: 'getData'
+        limit: 'getData',
     }
 }
 </script>
