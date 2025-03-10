@@ -2,6 +2,7 @@
 
 namespace Modules\Reports\Services;
 
+use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Modules\Reports\Enums\FilterOperator;
 
@@ -43,7 +44,7 @@ class ClauseBuilder
         'orWhereLike',
         'orWhereNotLike'
     ];
-    public function __construct(private Builder $builder) {}
+    public function __construct(private Builder $builder, private array $fields) {}
 
     public function setOperator(string $operator, string $group = 'OR'): self
     {
@@ -59,6 +60,10 @@ class ClauseBuilder
                 'IS_NOT_NULL' => 'orWhereNotNull',
                 'BETWEEN' => 'orWhereBetween',
                 'NOT_BETWEEN' => 'orWhereNotBetween',
+                'WHERE_DATE' => 'orWhereDate',
+                'WHERE_DATE_BETWEEN' => 'orWhereBetween',
+                'WHERE_DATETIME' => 'orWhere',
+                'WHERE_DATETIME_BETWEEN' => 'orWhereBetween',
                 default => $operator,
             };
         } else {
@@ -73,31 +78,42 @@ class ClauseBuilder
                 'IS_NOT_NULL' => 'whereNotNull',
                 'BETWEEN' => 'whereBetween',
                 'NOT_BETWEEN' => 'whereNotBetween',
+                'WHERE_DATE' => 'whereDate',
+                'WHERE_DATE_BETWEEN' => 'whereBetween',
+                'WHERE_DATETIME' => 'where',
+                'WHERE_DATETIME_BETWEEN' => 'whereBetween',
                 default => $operator,
             };
         }
         return $this;
     }
-    public function setValue(string $value): self
+
+    public function setFieldValue(string $field, string|array $value)
     {
+        if (isset($this->fields[$field]['dateFormat'])) {
+            if (is_array($value)) {
+                $dateformat = $this->fields[$field]['dateFormat'];
+                $value = array_map(function ($val) use ($dateformat) {
+                    return Carbon::parse($val)->format($dateformat);
+                }, $value);
+            }
+        }
         $this->value = $value;
-        return $this;
-    }
-    public function setField(string $field): self
-    {
+        if (in_array($this->operator, $this->arrayValues)) {
+            if (is_string($this->value)) {
+                $this->value = explode(',', $this->value);
+            }
+        }
+        if (in_array($this->operator, $this->likeOperator)) {
+            $this->value = "%" . $this->value . "%";
+        }
         $this->field = $field;
+        $this->value = $value;
         return $this;
     }
 
     public function get()
     {
-        if (in_array($this->operator, $this->arrayValues)) {
-            $this->value = explode(',', $this->value);
-        }
-        if (in_array($this->operator, $this->likeOperator)) {
-            $this->value = "%" . $this->value . "%";
-        }
-
         if (in_array($this->operator, $this->unCatogoriedOperator)) {
             $this->builder->where($this->field, FilterOperator::fromName($this->operator), $this->value);
         } else if (in_array($this->operator, $this->withoutValues)) {

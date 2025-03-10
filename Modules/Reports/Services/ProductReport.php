@@ -2,10 +2,10 @@
 
 namespace Modules\Reports\Services;
 
+use Modules\Reports\Contracts\ReportContract;
+use Modules\Reports\Enums\FilterOperator;
 use Modules\Reports\Enums\FilterType;
 use Modules\Reports\Enums\SortDirection;
-use Modules\Reports\Enums\FilterOperator;
-use Modules\Reports\Contracts\ReportContract;
 
 
 class ProductReport implements ReportContract
@@ -60,32 +60,6 @@ class ProductReport implements ReportContract
                 '=',
                 'Activity.OrderID'
             ]
-        ];
-    }
-
-    public function filters(): array
-    {
-        return [
-            'Product.Code' => [
-                'operator' => FilterOperator::LIKE->value,
-                'type' => FilterType::TEXT->value
-            ],
-            'Product.Description' => [
-                'operator' => FilterOperator::LIKE->value,
-                'type' => FilterType::TEXT->value
-            ],
-            'Product.Quantity' => [
-                'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::TEXT->value
-            ],
-            'Product.Unit' => [
-                'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::DROPDOWN->value
-            ],
-            'Product.Dosage' => [
-                'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::TEXT->value
-            ],
         ];
     }
 }

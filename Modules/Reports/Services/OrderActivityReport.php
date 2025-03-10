@@ -2,10 +2,10 @@
 
 namespace Modules\Reports\Services;
 
-use Modules\Reports\Enums\SortDirection;
 use Modules\Reports\Contracts\ReportContract;
 use Modules\Reports\Enums\FilterOperator;
 use Modules\Reports\Enums\FilterType;
+use Modules\Reports\Enums\SortDirection;
 
 class OrderActivityReport implements ReportContract
 {
@@ -31,7 +31,8 @@ class OrderActivityReport implements ReportContract
             ],
             [
                 'key' => 'Activity.Date',
-                'text' => 'Activity.DateTime'
+                'text' => 'Activity.DateTime',
+                'dateFormat' => 'd/m/y H:i',
             ],
         ];
     }
@@ -55,29 +56,6 @@ class OrderActivityReport implements ReportContract
                 '=',
                 'Activity.OrderID'
             ]
-        ];
-    }
-
-    public function filters(): array
-    {
-        return [
-            'Activity.Name' => [
-                'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::DROPDOWN->value
-            ],
-            'Activity.OrderID' => [
-                'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::TEXT->value
-            ],
-            'Activity.Action' => [
-                'operator' => FilterOperator::LIKE->value,
-                'type' => FilterType::TEXT->value
-            ],
-            'Activity.Date' => [
-                'operator' => FilterOperator::EQUAL->value,
-                'type' => FilterType::DATE->value,
-                'format' => 'd/m/Y H:i'
-            ],
         ];
     }
 }

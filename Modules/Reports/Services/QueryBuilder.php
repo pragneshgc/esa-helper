@@ -5,6 +5,7 @@ namespace Modules\Reports\Services;
 use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Modules\Reports\Enums\FilterType;
 
@@ -27,6 +28,8 @@ class QueryBuilder
 
     private array $filters = [];
     private array $reportFilters = [];
+    private array $datefields = [];
+    static $DATE_FORMAT = 'd M Y H:i';
     public function __construct(protected array $registerClasses, protected Request $request)
     {
         foreach ($this->registerClasses as $key => $reportClass) {
@@ -34,14 +37,12 @@ class QueryBuilder
             $this->tableClasses[$class->table] = $reportClass;
             $this->fields[$class->table] = $class->fields();
             $this->joins[$class->table] = $class->includedJoins();
-            $this->filters[$class->table] = $class->filters();
         }
     }
 
     public function get()
     {
         $fields = $this->request->fields;
-        $this->reportFilters = $this->recordFilter($fields);
 
         foreach ($fields as $key => $field) {
             [$tablename, $column] = explode('.', $field['key']);
@@ -57,33 +58,32 @@ class QueryBuilder
         $this->relationTables = collect(array_unique($this->relationTables))->diff([$this->primaryTable])->toArray();
 
         $this->getQueryBuilder();
+
         $this->includeFields();
         $this->setQueryOrder();
         $this->includeJoins();
         $this->filterRecords();
         $this->addGroupBy();
 
-        //$this->applyDateOptions();
-        //$this->setDropdownRecords();
-
         $records = $this->builder->paginate($this->request->limit);
-        if (!empty($this->enumFields)) {
-            $records->getCollection()->transform(function ($item) {
-                foreach ($item as $k => $i) {
-                    if (in_array($k, array_keys($this->enumFields))) {
-                        $reflection = new \ReflectionEnum($this->enumFields[$k]);
-                        $cases = $reflection->getCases();
-                        $item->$k = $this->getEnumNameFrom($cases, $i);
-                    }
-                }
 
-                return $item;
-            });
-        }
+
+        $records->getCollection()->transform(function ($item) {
+            foreach ($item as $k => $i) {
+                if (in_array($k, array_keys($this->enumFields))) {
+                    $reflection = new \ReflectionEnum($this->enumFields[$k]);
+                    $cases = $reflection->getCases();
+                    $item->$k = $this->getEnumNameFrom($cases, $i);
+                } elseif (in_array($k, array_keys($this->datefields))) {
+                    $item->$k = Carbon::parse($i)->format(self::$DATE_FORMAT);
+                }
+            }
+
+            return $item;
+        });
 
         return [
             'records' => $records,
-            //'filters' => $this->reportFilters
         ];
     }
 
@@ -96,20 +96,24 @@ class QueryBuilder
         if (isset($this->fields[$tablename])) {
             $isFieldExit = collect($this->fields[$tablename])->where('key', $field['key'])->first();
             if (isset($isFieldExit['callback'])) {
-                $this->fieldsRefs[$field['key']] = $field['callback'];
+                $this->fieldsRefs[$field['key']] = $field;
                 $this->reportFields[] = $isFieldExit['callback'] . ' as `' . $field['text'] . '`';
             } elseif (isset($isFieldExit['enum'])) {
                 $this->enumFields[$field['text']] = $field['enum'];
-                $this->fieldsRefs[$field['key']] = $field['key'];
+                $this->fieldsRefs[$field['key']] = $field;
+                $this->reportFields[] = $isFieldExit['key'] . ' as `' . $field['text'] . '`';
+            } elseif (isset($isFieldExit['dateFormat'])) {
+                $this->datefields[$field['text']] = $field['key'];
+                $this->fieldsRefs[$field['key']] = $field;
                 $this->reportFields[] = $isFieldExit['key'] . ' as `' . $field['text'] . '`';
             } else {
-                $this->fieldsRefs[$field['key']] = $field['key'];
+                $this->fieldsRefs[$field['key']] = $field;
                 $this->reportFields[] = $field['key'] . ' as `' . $field['text'] . '`';
             }
         } else {
             [$tablename, $column] = explode('.', $field['key']);
             if ($this->joins[$this->primaryTable][$tablename]) {
-                $this->fieldsRefs[$field['key']] = $field['key'];
+                $this->fieldsRefs[$field['key']] = $field;
                 $this->reportFields[] = $field['key'] . ' as `' . $field['text'] . '`';
             }
         }
@@ -181,12 +185,11 @@ class QueryBuilder
 
     private function queryCondition($query, $rules)
     {
-        $clauseBuilder = new ClauseBuilder($query);
+        $clauseBuilder = new ClauseBuilder($query, $this->fieldsRefs);
         foreach ($rules as $rule) {
             $query = $clauseBuilder
                 ->setOperator($rule->operator, $rule->condition)
-                ->setField($rule->field)
-                ->setValue($rule->value)
+                ->setFieldValue($rule->field, $rule->value)
                 ->get();
         }
     }
@@ -227,18 +230,6 @@ class QueryBuilder
     {
         if (!empty($this->request->groupBy)) {
             $this->builder->groupBy($this->request->groupBy);
-        }
-    }
-
-    private function applyDateOptions()
-    {
-        if (!empty($this->request->dateOptions)) {
-            $options = $this->request->dateOptions;
-            $startDate = Carbon::parse($options['dateRange'][0]);
-            $endDate = Carbon::parse($options['dateRange'][1]);
-
-            dd($startDate->format('Y-m-d'), $startDate->timestamp, $endDate);
-            //$this->builder->whereBetween($options['dateFilter'], $dateRange);
         }
     }
 }
