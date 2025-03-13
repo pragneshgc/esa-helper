@@ -27,4 +27,9 @@ enum OrderStatus: int
     {
         return strtolower($this->name);
     }
+
+    public function prityText(): string
+    {
+        return ucwords(str_replace('_', ' ', $this->name));
+    }
 }
